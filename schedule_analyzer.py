@@ -56,11 +56,7 @@ def parse_args() -> argparse.Namespace:
 def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
     """Find all relevant YAML files from newest to oldest within time window."""
     root = Path(root_dir)
-    today = datetime.now(tz=timezone.utc)
-    cutoff = today - timedelta(weeks=weeks)
-
     logger.debug("Searching in: %s", root)
-    logger.debug("Date range: %s to %s", cutoff.date(), today.date())
 
     log_directory_contents(root)
 
@@ -91,10 +87,16 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
             for day_file in day_files:
                 day = int(day_file.stem)
                 date = datetime(year, month, day, tzinfo=timezone.utc)
-                if date > today:
-                    logger.debug("Skipping future date: %s", date.date())
-                    continue
-                if date < cutoff:
+                if not files:  # First file found
+                    latest_date = date
+                    cutoff = min(
+                        datetime.now(tz=timezone.utc),
+                        latest_date - timedelta(weeks=weeks),
+                    )
+                    logger.debug(
+                        "Date range: %s to %s", cutoff.date(), latest_date.date(),
+                    )
+                elif date < cutoff:
                     logger.debug("Reached cutoff date: %s", date.date())
                     break
                 logger.debug("Found schedule file: %s", day_file)
@@ -129,7 +131,9 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
         schedule = load_schedule(file_path)
         programs = extract_programs(schedule)
 
+        logger.debug("Processing file: %s", file_path)
         for series, start_time in programs:
+            logger.debug("  Found program: %s at %s", series, start_time)
             weekday = start_time.weekday()
             # Round to nearest 5 minutes for tolerance
             hour = start_time.hour
@@ -141,6 +145,12 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
     # Filter for programs occurring multiple times
     recurring = defaultdict(set)
     for (series, weekday), times in occurrences.items():
+        logger.debug(
+            "Analyzing series '%s' on %s with %d occurrences",
+            series,
+            weekday_name(weekday),
+            len(times),
+        )
         min_occurrences = 2
         if len(times) >= min_occurrences:  # Filter for recurring programs
             recurring[series].add((weekday, tuple(sorted(times))))
