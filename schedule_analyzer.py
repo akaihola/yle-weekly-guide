@@ -17,8 +17,9 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import jinja2
 from ruamel.yaml import YAML
+
+from templates.html_generator import weekday_name
 
 logger = logging.getLogger(__name__)
 
@@ -235,43 +236,18 @@ def log_directory_contents(directory: Path, prefix: str = "") -> None:
         )
 
 
-def weekday_name(day_num: int) -> str:
-    """Convert weekday number to name."""
-    days = [
-        "Maanantai",
-        "Tiistai",
-        "Keskiviikko",
-        "Torstai",
-        "Perjantai",
-        "Lauantai",
-        "Sunnuntai",
-    ]
-    return days[day_num]
-
-
 def format_time(hour: int, minute: int) -> str:
     """Format time as HH:MM."""
     return f"{hour:02d}:{minute:02d}"
 
 
 def format_dates(dates: set[datetime.date]) -> str:
-    """Format a set of dates intelligently as ranges or lists.
-
-    Examples:
-        (1/8/22.12.) - Same month, non-sequential
-        (1-22.12.) - Same month, sequential
-        (30.11.-14.12.) - Multi-month range
-        (30.11., 7/14/21.12.) - Multi-month with non-sequential dates
-        (5-19.12., 2.1.) - Sequential range followed by non-sequential date
-
-    """
+    """Format a set of dates intelligently as ranges or lists."""
     sorted_dates = sorted(dates)
     if not sorted_dates:
         return ""
 
-    weekly_interval = 7  # Days between weekly recurring programs
-
-    # Split dates into sequential groups
+    weekly_interval = 7
     sequences = []
     current_seq = [sorted_dates[0]]
 
@@ -283,7 +259,6 @@ def format_dates(dates: set[datetime.date]) -> str:
             current_seq = [curr]
     sequences.append(current_seq)
 
-    # Format each sequence
     formatted_parts = []
     for sequence in sequences:
         if len(sequence) == 1:
@@ -315,73 +290,6 @@ def count_weekday_occurrences(files: list[Path], weekday: int) -> int:
     return sum(1 for date in dates if date.weekday() == weekday)
 
 
-def generate_html_table(
-    by_weekday: dict[int, list[tuple[str, str, set[datetime.date]]]],
-    files: list[Path],
-) -> str:
-    """Generate HTML table for recurring programs using Jinja2 template."""
-    # Get all unique dates from files and include today
-    today = datetime.now(tz=timezone.utc).date()
-    all_dates = sorted(
-        {
-            datetime.strptime(
-                f.parent.parent.name + f.parent.name + f.stem,
-                "%Y%m%d",
-            )
-            .replace(tzinfo=timezone.utc)
-            .date()
-            for f in files
-        }
-        | {today},
-    )
-
-    # Group dates by week and weekday for template
-    week_dates = defaultdict(lambda: defaultdict(list))
-    for date in all_dates:
-        # Get the Monday of this week
-        monday = date - timedelta(days=date.weekday())
-        week_dates[monday][date.weekday()].append(date)
-
-    # Convert to format expected by template, adding empty entries before first date
-    first_date = min(all_dates)
-    week_dates = {
-        weekday: (
-            # Add empty entries for days before first content
-            [None] * (1 if weekday < first_date.weekday() else 0)
-            + [
-                date
-                for monday in sorted(week_dates.keys())
-                for date in week_dates[monday].get(weekday, [])
-            ]
-        )
-        for weekday in range(7)
-    }
-
-    # Calculate max_dates for template
-    max_dates = max(len(dates) for dates in week_dates.values())
-
-    # Set up Jinja2 environment
-    template_dir = Path(__file__).parent / "templates"
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir),
-        autoescape=True,
-    )
-    env.globals["weekday_name"] = weekday_name
-
-    # Copy static files to output directory
-    for static_file in ["schedule.js", "style.css"]:
-        source = template_dir / static_file
-        dest = Path(static_file)
-        dest.write_text(source.read_text())
-
-    template = env.get_template("schedule.html")
-    return template.render(
-        by_weekday=by_weekday,
-        week_dates=week_dates,
-        max_dates=max_dates,
-    )
-
-
 def main() -> None:
     """Analyze schedule files and report recurring programs."""
     args = parse_args()
@@ -395,32 +303,34 @@ def main() -> None:
     recurring = analyze_recurring_programs(files)
 
     if args.format == "html":
-        # For HTML, keep programs separate
+        from templates.html_generator import generate_html_table
+
         by_weekday = defaultdict(list)
         for weekday, hour, minute, series, dates in recurring:
             time_str = format_time(hour, minute)
-            # Store program info as (time, name, dates) tuple
             by_weekday[weekday].append((time_str, series, dates))
         html_output = generate_html_table(by_weekday, files)
         sys.stdout.write(html_output + "\n")
-    else:
-        # For text output, group by weekday and time
-        by_weekday_time = defaultdict(lambda: defaultdict(list))
-        for weekday, hour, minute, series, dates in recurring:
-            time_str = format_time(hour, minute)
-            expected_occurrences = count_weekday_occurrences(files, weekday)
-            if len(dates) < expected_occurrences:
-                series_with_dates = f"{series} ({format_dates(dates)})"
-                by_weekday_time[weekday][time_str].append(series_with_dates)
-            else:
-                by_weekday_time[weekday][time_str].append(series)
+        return
 
-        # Text output
-        for weekday in range(7):
-            if weekday in by_weekday_time:
-                logger.info("%s:", weekday_name(weekday))
-                for time_str, series_list in sorted(by_weekday_time[weekday].items()):
-                    logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
+    # Text output
+    by_weekday_time = defaultdict(lambda: defaultdict(list))
+    for weekday, hour, minute, series, dates in recurring:
+        time_str = format_time(hour, minute)
+        expected_occurrences = count_weekday_occurrences(files, weekday)
+        if len(dates) < expected_occurrences:
+            series_with_dates = f"{series} ({format_dates(dates)})"
+            by_weekday_time[weekday][time_str].append(series_with_dates)
+        else:
+            by_weekday_time[weekday][time_str].append(series)
+
+    from templates.html_generator import weekday_name
+
+    for weekday in range(7):
+        if weekday in by_weekday_time:
+            logger.info("%s:", weekday_name(weekday))
+            for time_str, series_list in sorted(by_weekday_time[weekday].items()):
+                logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
 
 
 if __name__ == "__main__":
