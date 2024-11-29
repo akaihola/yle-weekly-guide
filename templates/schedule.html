@@ -14,20 +14,33 @@
         {% for weekday, programs in by_weekday.items() if programs %}
             {# Header row with weekday and dates #}
             <tr>
-                <th colspan='2'>{{ weekday_name(weekday) }}</th>
+                <th>{{ weekday_name(weekday) }}</th>
                 {% for date in week_dates[weekday] %}
                     <th>{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
                 {% endfor %}
+                {# Add empty headers for remaining days if needed #}
+                {% for _ in range(max_dates - (week_dates[weekday]|length)) %}
+                    <th></th>
+                {% endfor %}
+                <th>Ohjelma</th>
             </tr>
 
             {# Program rows #}
             {% for time_str, name, prog_dates in programs|sort %}
                 <tr data-program='{{ name }}'>
                     <td>{{ time_str }}</td>
-                    <td class="program-cell" onclick="toggleProgram('{{ name }}')">{{ name }}</td>
                     {% for date in week_dates[weekday] %}
-                        <td class="{{ 'marked' if date and date in prog_dates }}">{{ '✓' if date and date in prog_dates else '' }}</td>
+                        {% if date %}
+                            <td class="{{ 'marked' if date in prog_dates }}">{{ '✓' if date in prog_dates else '' }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
                     {% endfor %}
+                    {# Add empty cells for remaining days if needed #}
+                    {% for _ in range(max_dates - (week_dates[weekday]|length)) %}
+                        <td></td>
+                    {% endfor %}
+                    <td class="program-cell" onclick="toggleProgram('{{ name }}')">{{ name }}</td>
                 </tr>
             {% endfor %}
         {% endfor %}

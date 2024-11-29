@@ -99,10 +99,15 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
                 date = datetime(year, month, day, tzinfo=timezone.utc)
                 if not files:  # First file found
                     latest_date = date
+                    # Calculate initial cutoff date
                     cutoff = min(
                         datetime.now(tz=timezone.utc),
                         latest_date - timedelta(weeks=weeks),
                     )
+                    # Adjust to previous Monday if needed
+                    days_since_monday = cutoff.weekday()
+                    if days_since_monday > 0:  # If not already Monday
+                        cutoff -= timedelta(days=days_since_monday)
                     logger.debug(
                         "Date range: %s to %s",
                         cutoff.date(),
@@ -352,6 +357,9 @@ def generate_html_table(
         for weekday in range(7)
     }
 
+    # Calculate max_dates for template
+    max_dates = max(len(dates) for dates in week_dates.values())
+
     # Set up Jinja2 environment
     template_dir = Path(__file__).parent / "templates"
     env = jinja2.Environment(
@@ -370,6 +378,7 @@ def generate_html_table(
     return template.render(
         by_weekday=by_weekday,
         week_dates=week_dates,
+        max_dates=max_dates,
     )
 
 
