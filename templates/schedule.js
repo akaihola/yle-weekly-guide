@@ -28,7 +28,9 @@ function toggleProgram(programName, save = true) {
         if (!listItem) {
             const li = document.createElement('li');
             li.id = `hidden-${programName}`;
-            li.innerHTML = `<span class='toggle-btn' onclick='toggleProgram("${programName}")'>${programName}</span>`;
+            li.className = 'toggle-btn';
+            li.onclick = () => toggleProgram(programName);
+            li.innerHTML = `<span class="program-name">${programName}</span>`;
             hiddenList.appendChild(li);
         }
     } else if (listItem) {
