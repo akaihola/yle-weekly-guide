@@ -62,10 +62,7 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
     logger.debug("Searching in: %s", root)
     logger.debug("Date range: %s to %s", cutoff.date(), today.date())
 
-    # Debug log the directory contents
-    logger.debug("Directory contents:")
-    for item in root.iterdir():
-        logger.debug("  %s %s", "DIR " if item.is_dir() else "FILE", item.name)
+    log_directory_contents(root)
 
     files = []
     logger.debug("Looking for year directories matching: [0-9][0-9][0-9][0-9]")
@@ -75,17 +72,15 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
         logger.debug("Found year directory: %s", year_dir.name)
 
         logger.debug(
-            "Looking for month directories in %s matching: [0-9][0-9]", year_dir.name,
+            "Looking for month directories in %s matching: [0-9][0-9]",
+            year_dir.name,
         )
         month_dirs = sorted(year_dir.glob("[0-9][0-9]"), reverse=True)
         for month_dir in month_dirs:
             month = int(month_dir.name)
             logger.debug("Found month directory: %s/%s", year_dir.name, month_dir.name)
 
-            # Debug log month directory contents
-            logger.debug("Month directory contents:")
-            for item in month_dir.iterdir():
-                logger.debug("  %s %s", "DIR " if item.is_dir() else "FILE", item.name)
+            log_directory_contents(month_dir)
 
             logger.debug(
                 "Looking for day files in %s/%s matching: [0-9][0-9].yaml",
@@ -155,6 +150,15 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
     return recurring
 
 
+def log_directory_contents(directory: Path, prefix: str = "") -> None:
+    """Log the contents of a directory with optional prefix for context."""
+    logger.debug("%sDirectory contents:", prefix)
+    for item in directory.iterdir():
+        logger.debug(
+            "%s  %s %s", prefix, "DIR " if item.is_dir() else "FILE", item.name,
+        )
+
+
 def weekday_name(day_num: int) -> str:
     """Convert weekday number to name."""
     days = [
@@ -177,7 +181,7 @@ def format_time(hour: int, minute: int) -> str:
 def main() -> None:
     """Analyze schedule files and report recurring programs."""
     args = parse_args()
-    setup_logging(args.debug)
+    setup_logging(debug=args.debug)
 
     files = find_schedule_files(args.directory)
     if not files:
