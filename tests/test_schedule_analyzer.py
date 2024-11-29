@@ -2,8 +2,6 @@
 
 from datetime import date
 
-from babel import Locale
-
 from schedule_analyzer import format_dates, normalize_program_name
 
 
@@ -86,37 +84,71 @@ def test_normalize_program_name_whitespace() -> None:
     assert normalize_program_name("  Yle Uutiset ja sää  ") == "Yle Uutiset"
 
 
-def test_weekday_name_monday() -> None:
-    """Test Monday (0) converts to weekday name in current locale."""
-    from templates.html_generator import weekday_name
-
-    # Get expected name from babel using current locale
-    locale = Locale.parse("fi_FI")  # Explicitly parse the locale
-    expected = locale.days["format"]["wide"][0]  # Monday is 0
-    assert weekday_name(0).lower() == expected.lower()
-
-
-def test_weekday_name_sunday() -> None:
-    """Test Sunday (6) converts to weekday name in current locale."""
-    from templates.html_generator import weekday_name
-
-    locale = Locale.default()
-    expected = locale.days["format"]["wide"][6]  # Sunday is 6
-    assert weekday_name(6).lower() == expected.lower()
-
-
-def test_weekday_name_all_days() -> None:
-    """Test all weekday numbers map to unique localized names."""
-    from datetime import date
-
-    from babel.dates import format_date
+def test_weekday_names_finnish() -> None:
+    """Test weekday names in Finnish."""
+    import os
 
     from templates.html_generator import weekday_name
 
-    # Generate expected names the same way as weekday_name()
+    original_locale = os.environ.get("LANG")
+    os.environ["LANG"] = "fi_FI.UTF-8"
+
     expected = [
-        format_date(date(2024, 1, 1 + i), format="EEEE", locale=Locale.default())
-        for i in range(7)
+        "maanantai",
+        "tiistai",
+        "keskiviikko",
+        "torstai",
+        "perjantai",
+        "lauantai",
+        "sunnuntai",
     ]
-    actual = [weekday_name(i) for i in range(7)]
-    assert [name.lower() for name in actual] == [name.lower() for name in expected]
+
+    for i, exp in enumerate(expected):
+        assert weekday_name(i).lower() == exp
+
+    if original_locale:
+        os.environ["LANG"] = original_locale
+
+
+def test_weekday_names_english() -> None:
+    """Test weekday names in English."""
+    import os
+
+    from templates.html_generator import weekday_name
+
+    original_locale = os.environ.get("LANG")
+    os.environ["LANG"] = "en_US.UTF-8"
+
+    expected = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
+
+    for i, exp in enumerate(expected):
+        assert weekday_name(i).lower() == exp
+
+    if original_locale:
+        os.environ["LANG"] = original_locale
+
+
+def test_weekday_names_swedish() -> None:
+    """Test weekday names in Swedish."""
+    import os
+
+    from templates.html_generator import weekday_name
+
+    original_locale = os.environ.get("LANG")
+    os.environ["LANG"] = "sv_SE.UTF-8"
+
+    expected = ["måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"]
+
+    for i, exp in enumerate(expected):
+        assert weekday_name(i).lower() == exp
+
+    if original_locale:
+        os.environ["LANG"] = original_locale

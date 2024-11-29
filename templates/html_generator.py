@@ -13,10 +13,16 @@ from babel.dates import format_date
 
 def weekday_name(day_num: int) -> str:
     """Convert weekday number to name using system locale."""
+    import os
+
+    # Get locale from environment
+    lang = os.environ.get("LANG", "en_US.UTF-8").split(".")[0]
+    locale = Locale.parse(lang)
     # Create a date for the given weekday (using 2024 which starts on Monday)
     d = date(2024, 1, 1 + day_num)  # Jan 1, 2024 is Monday
-    # Format just the weekday name in the current locale
-    return format_date(d, format="EEEE", locale=Locale.default())
+    # Format just the weekday name using explicit locale
+    # Use 'cccc' instead of 'EEEE' to get the standalone form
+    return format_date(d, format="cccc", locale=locale)
 
 
 def generate_html_table(
