@@ -124,7 +124,9 @@ def extract_programs(schedule: dict) -> list[tuple[str, datetime]]:
     return programs
 
 
-def analyze_recurring_programs(files: list[Path]) -> list[tuple[int, int, int, str]]:
+def analyze_recurring_programs(
+    files: list[Path],
+) -> list[tuple[int, int, int, str, set[datetime.date]]]:
     """Analyze programs to find recurring patterns.
 
     Returns:
@@ -190,7 +192,9 @@ def analyze_recurring_programs(files: list[Path]) -> list[tuple[int, int, int, s
                     latest.strftime("%H:%M"),
                     len(dates),
                 )
-                recurring.append((weekday, avg_time.hour, avg_time.minute, series))
+                recurring.append(
+                    (weekday, avg_time.hour, avg_time.minute, series, dates),
+                )
 
     # Sort by time then weekday
     recurring.sort()
@@ -228,6 +232,69 @@ def format_time(hour: int, minute: int) -> str:
     return f"{hour:02d}:{minute:02d}"
 
 
+def format_dates(dates: set[datetime.date]) -> str:
+    """Format a set of dates intelligently as ranges or lists.
+
+    Examples:
+        (1/8/22.12.) - Same month, non-sequential
+        (1-22.12.) - Same month, sequential
+        (30.11.-14.12.) - Multi-month range
+        (30.11. - 7/14/21.12.) - Multi-month with non-sequential dates
+
+    """
+    sorted_dates = sorted(dates)
+    if not sorted_dates:
+        return ""
+
+    # Check if all dates are in the same month
+    same_month = all(d.month == sorted_dates[0].month for d in sorted_dates)
+
+    weekly_interval = 7  # Days between weekly recurring programs
+    # Check if dates form a sequence with 7-day intervals
+    is_sequence = all(
+        (b - a).days == weekly_interval for a, b in zip(sorted_dates, sorted_dates[1:])
+    )
+
+    if same_month:
+        if is_sequence:
+            # Same month sequence: (1-22.12.)
+            return (
+                f"{sorted_dates[0].day}-{sorted_dates[-1].day}.{sorted_dates[0].month}."
+            )
+        # Same month non-sequence: (1/8/22.12.)
+        return f"{'/'.join(str(d.day) for d in sorted_dates)}.{sorted_dates[0].month}."
+    if is_sequence:
+        # Multi-month sequence: (30.11.-14.12.)
+        return (
+            f"{sorted_dates[0].day}.{sorted_dates[0].month}.-"
+            f"{sorted_dates[-1].day}.{sorted_dates[-1].month}."
+        )
+    # Multi-month non-sequence: (30.11. - 7/14/21.12.)
+    first_date = f"{sorted_dates[0].day}.{sorted_dates[0].month}."
+    remaining = sorted_dates[1:]
+    if all(d.month == remaining[0].month for d in remaining):
+        # All remaining dates in same month
+        last_part = f"{'/'.join(str(d.day) for d in remaining)}.{remaining[0].month}."
+    else:
+        # Mixed months in remaining dates
+        last_part = ", ".join(f"{d.day}.{d.month}." for d in remaining)
+    return f"{first_date} - {last_part}"
+
+
+def count_weekday_occurrences(files: list[Path], weekday: int) -> int:
+    """Count how many times a weekday occurs in the analyzed files."""
+    dates = {
+        datetime.strptime(
+            f.parent.parent.name + f.parent.name + f.stem,
+            "%Y%m%d",
+        )
+        .replace(tzinfo=timezone.utc)
+        .date()
+        for f in files
+    }
+    return sum(1 for date in dates if date.weekday() == weekday)
+
+
 def main() -> None:
     """Analyze schedule files and report recurring programs."""
     args = parse_args()
@@ -242,9 +309,16 @@ def main() -> None:
 
     # Group programs by weekday and time
     by_weekday = defaultdict(lambda: defaultdict(list))
-    for weekday, hour, minute, series in recurring:
+    for weekday, hour, minute, series, dates in recurring:
         time_str = format_time(hour, minute)
-        by_weekday[weekday][time_str].append(series)
+        # Only add dates if program doesn't occur on every possible instance of
+        # this weekday
+        expected_occurrences = count_weekday_occurrences(files, weekday)
+        if len(dates) < expected_occurrences:
+            series_with_dates = f"{series} ({format_dates(dates)})"
+            by_weekday[weekday][time_str].append(series_with_dates)
+        else:
+            by_weekday[weekday][time_str].append(series)
 
     # Log results grouped by weekday then time
     for weekday in range(7):  # 0-6 for Monday-Sunday
