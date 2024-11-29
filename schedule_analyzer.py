@@ -109,14 +109,14 @@ def load_schedule(file_path: Path) -> dict:
         return yaml.load(f)
 
 
-def extract_programs(schedule: dict) -> list[tuple[str, datetime, str]]:
+def extract_programs(schedule: dict) -> list[tuple[str, datetime]]:
     """Extract program entries from schedule data."""
     programs = []
-    for channel, content in schedule.get("data", {}).items():
-        for prog in content.get("programmes", []):
-            start_time = datetime.fromisoformat(prog["start_time"])
-            series = prog.get("series", prog.get("title", ""))
-            programs.append((series, start_time, channel))
+    content = next(iter(schedule.get("data", {}).values()))
+    for prog in content.get("programmes", []):
+        start_time = datetime.fromisoformat(prog["start_time"])
+        series = prog.get("series", prog.get("title", ""))
+        programs.append((series, start_time))
     return programs
 
 
@@ -129,23 +129,21 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
         schedule = load_schedule(file_path)
         programs = extract_programs(schedule)
 
-        for series, start_time, channel in programs:
+        for series, start_time in programs:
             weekday = start_time.weekday()
             # Round to nearest 5 minutes for tolerance
             hour = start_time.hour
             minute = (start_time.minute // 5) * 5
 
-            key = (series, weekday, channel)
+            key = (series, weekday)
             occurrences[key].add((hour, minute))
 
     # Filter for programs occurring multiple times
-    recurring = {}
-    for (series, weekday, channel), times in occurrences.items():
+    recurring = defaultdict(set)
+    for (series, weekday), times in occurrences.items():
         min_occurrences = 2
         if len(times) >= min_occurrences:  # Filter for recurring programs
-            if series not in recurring:
-                recurring[series] = defaultdict(set)
-            recurring[series][channel].add((weekday, tuple(sorted(times))))
+            recurring[series].add((weekday, tuple(sorted(times))))
 
     return recurring
 
@@ -155,7 +153,10 @@ def log_directory_contents(directory: Path, prefix: str = "") -> None:
     logger.debug("%sDirectory contents:", prefix)
     for item in directory.iterdir():
         logger.debug(
-            "%s  %s %s", prefix, "DIR " if item.is_dir() else "FILE", item.name,
+            "%s  %s %s",
+            prefix,
+            "DIR " if item.is_dir() else "FILE",
+            item.name,
         )
 
 
@@ -193,12 +194,10 @@ def main() -> None:
     # Log results
     for series in sorted(recurring.keys()):
         logger.info("\nSarja: %s", series)
-        for channel, occurrences in recurring[series].items():
-            logger.info("Kanava: %s", channel)
-            for weekday, times in sorted(occurrences):
-                logger.info("  %s:", weekday_name(weekday))
-                for hour, minute in times:
-                    logger.info("    %s", format_time(hour, minute))
+        for weekday, times in sorted(recurring[series]):
+            logger.info("  %s:", weekday_name(weekday))
+            for hour, minute in times:
+                logger.info("    %s", format_time(hour, minute))
 
 
 if __name__ == "__main__":
