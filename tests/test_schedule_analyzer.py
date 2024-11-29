@@ -2,6 +2,8 @@
 
 from datetime import date
 
+from babel import Locale
+
 from schedule_analyzer import format_dates, normalize_program_name
 
 
@@ -82,3 +84,39 @@ def test_normalize_program_name_empty() -> None:
 def test_normalize_program_name_whitespace() -> None:
     """Test normalizing strings with extra whitespace."""
     assert normalize_program_name("  Yle Uutiset ja sää  ") == "Yle Uutiset"
+
+
+def test_weekday_name_monday() -> None:
+    """Test Monday (0) converts to weekday name in current locale."""
+    from templates.html_generator import weekday_name
+
+    # Get expected name from babel using current locale
+    locale = Locale.parse("fi_FI")  # Explicitly parse the locale
+    expected = locale.days["format"]["wide"][0]  # Monday is 0
+    assert weekday_name(0).lower() == expected.lower()
+
+
+def test_weekday_name_sunday() -> None:
+    """Test Sunday (6) converts to weekday name in current locale."""
+    from templates.html_generator import weekday_name
+
+    locale = Locale.default()
+    expected = locale.days["format"]["wide"][6]  # Sunday is 6
+    assert weekday_name(6).lower() == expected.lower()
+
+
+def test_weekday_name_all_days() -> None:
+    """Test all weekday numbers map to unique localized names."""
+    from datetime import date
+
+    from babel.dates import format_date
+
+    from templates.html_generator import weekday_name
+
+    # Generate expected names the same way as weekday_name()
+    expected = [
+        format_date(date(2024, 1, 1 + i), format="EEEE", locale=Locale.default())
+        for i in range(7)
+    ]
+    actual = [weekday_name(i) for i in range(7)]
+    assert [name.lower() for name in actual] == [name.lower() for name in expected]

@@ -3,24 +3,20 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import jinja2
+from babel.core import Locale
+from babel.dates import format_date
 
 
 def weekday_name(day_num: int) -> str:
-    """Convert weekday number to name."""
-    days = [
-        "Maanantai",
-        "Tiistai",
-        "Keskiviikko",
-        "Torstai",
-        "Perjantai",
-        "Lauantai",
-        "Sunnuntai",
-    ]
-    return days[day_num]
+    """Convert weekday number to name using system locale."""
+    # Create a date for the given weekday (using 2024 which starts on Monday)
+    d = date(2024, 1, 1 + day_num)  # Jan 1, 2024 is Monday
+    # Format just the weekday name in the current locale
+    return format_date(d, format="EEEE", locale=Locale.default())
 
 
 def generate_html_table(
@@ -43,9 +39,9 @@ def generate_html_table(
 
     # Group dates by week and weekday for template
     week_dates = defaultdict(lambda: defaultdict(list))
-    for date in all_dates:
-        monday = date - timedelta(days=date.weekday())
-        week_dates[monday][date.weekday()].append(date)
+    for current_date in all_dates:
+        monday = current_date - timedelta(days=current_date.weekday())
+        week_dates[monday][current_date.weekday()].append(current_date)
 
     # Convert to format expected by template
     first_date = min(all_dates)

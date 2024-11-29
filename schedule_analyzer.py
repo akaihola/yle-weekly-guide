@@ -4,6 +4,7 @@
 # dependencies = [
 #     "ruamel-yaml",
 #     "jinja2",
+#     "babel",
 # ]
 # ///
 """TV/Radio schedule analyzer for finding recurring programs."""
