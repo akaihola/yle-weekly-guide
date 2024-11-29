@@ -130,9 +130,15 @@ def analyze_recurring_programs(files: list[Path]) -> list[tuple[int, int, int, s
     Returns:
         List of tuples (weekday, hour, minute, series) for recurring programs
 
+    The function tracks occurrences of series+weekday combinations with their time
+    ranges
+    in a dictionary where:
+    - Keys are (series, weekday) tuples
+    - Values are lists of ((earliest_time, latest_time), set(dates)) tuples
+
     """
-    # Track occurrences of series+weekday+hour combinations
-    occurrences = defaultdict(set)
+    occurrences = defaultdict(list)
+    tolerance = timedelta(minutes=13)
 
     for file_path in files:
         schedule = load_schedule(file_path)
@@ -142,26 +148,49 @@ def analyze_recurring_programs(files: list[Path]) -> list[tuple[int, int, int, s
         for series, start_time in programs:
             logger.debug("  Found program: %s at %s", series, start_time)
             weekday = start_time.weekday()
-            # Round to nearest 5 minutes for tolerance
-            hour = start_time.hour
-            minute = (start_time.minute // 5) * 5
 
-            key = (series, weekday, hour, minute)
-            occurrences[key].add(start_time.date())
+            # Create a datetime with just time components for comparison
+            time_only = start_time.replace(year=2000, month=1, day=1)
+            key = (series, weekday)
+
+            # Try to find matching time slot
+            matched = False
+            for (earliest, latest), dates in occurrences[key]:
+                if earliest - tolerance <= time_only <= latest + tolerance:
+                    # Update time range if needed
+                    new_earliest = min(earliest, time_only)
+                    new_latest = max(latest, time_only)
+                    # Replace tuple with updated range
+                    idx = occurrences[key].index(((earliest, latest), dates))
+                    dates.add(start_time.date())
+                    occurrences[key][idx] = ((new_earliest, new_latest), dates)
+                    dates.add(start_time.date())
+                    matched = True
+                    break
+
+            if not matched:
+                # Create new time slot
+                occurrences[key].append(((time_only, time_only), {start_time.date()}))
 
     # Filter for programs occurring multiple times
     recurring = []
-    for (series, weekday, hour, minute), dates in occurrences.items():
-        logger.debug(
-            "Analyzing series '%s' on %s at %s with %d occurrences",
-            series,
-            weekday_name(weekday),
-            format_time(hour, minute),
-            len(dates),
-        )
-        min_occurrences = 2
-        if len(dates) >= min_occurrences:  # Filter for recurring programs
-            recurring.append((weekday, hour, minute, series))
+    min_occurrences = 2
+    for (series, weekday), time_slots in occurrences.items():
+        for (earliest, latest), dates in time_slots:
+            if len(dates) >= min_occurrences:
+                # Use the average time for display
+                avg_time = earliest + (latest - earliest) / 2
+                logger.debug(
+                    "Analyzing series '%s' on %s at %s "
+                    "(range: %s-%s) with %d occurrences",
+                    series,
+                    weekday_name(weekday),
+                    avg_time.strftime("%H:%M"),
+                    earliest.strftime("%H:%M"),
+                    latest.strftime("%H:%M"),
+                    len(dates),
+                )
+                recurring.append((weekday, avg_time.hour, avg_time.minute, series))
 
     # Sort by time then weekday
     recurring.sort()
