@@ -15,7 +15,7 @@ The script requires a directory structure containing YAML schedule files organiz
     <root_directory>/
         YYYY/           # Year
             MM/         # Month
-                DD.yml  # Day's schedule
+                DD.yaml  # Day's schedule
 
 Run the script with::
 

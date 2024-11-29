@@ -17,13 +17,16 @@ from pathlib import Path
 
 from ruamel.yaml import YAML
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 logger = logging.getLogger(__name__)
+
+
+def setup_logging(*, debug: bool = False) -> None:
+    """Configure logging with optional debug level."""
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,6 +45,11 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Root directory containing YYYY/MM/DD.yml schedule files",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging",
+    )
     return parser.parse_args()
 
 
@@ -51,18 +59,50 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
     today = datetime.now(tz=timezone.utc)
     cutoff = today - timedelta(weeks=weeks)
 
+    logger.debug("Searching in: %s", root)
+    logger.debug("Date range: %s to %s", cutoff.date(), today.date())
+
+    # Debug log the directory contents
+    logger.debug("Directory contents:")
+    for item in root.iterdir():
+        logger.debug("  %s %s", "DIR " if item.is_dir() else "FILE", item.name)
+
     files = []
-    for year_dir in sorted(root.glob("[0-9][0-9][0-9][0-9]"), reverse=True):
+    logger.debug("Looking for year directories matching: [0-9][0-9][0-9][0-9]")
+    year_dirs = sorted(root.glob("[0-9][0-9][0-9][0-9]"), reverse=True)
+    for year_dir in year_dirs:
         year = int(year_dir.name)
-        for month_dir in sorted(year_dir.glob("[0-9][0-9]"), reverse=True):
+        logger.debug("Found year directory: %s", year_dir.name)
+
+        logger.debug(
+            "Looking for month directories in %s matching: [0-9][0-9]", year_dir.name,
+        )
+        month_dirs = sorted(year_dir.glob("[0-9][0-9]"), reverse=True)
+        for month_dir in month_dirs:
             month = int(month_dir.name)
-            for day_file in sorted(month_dir.glob("[0-9][0-9].yml"), reverse=True):
+            logger.debug("Found month directory: %s/%s", year_dir.name, month_dir.name)
+
+            # Debug log month directory contents
+            logger.debug("Month directory contents:")
+            for item in month_dir.iterdir():
+                logger.debug("  %s %s", "DIR " if item.is_dir() else "FILE", item.name)
+
+            logger.debug(
+                "Looking for day files in %s/%s matching: [0-9][0-9].yaml",
+                year_dir.name,
+                month_dir.name,
+            )
+            day_files = sorted(month_dir.glob("[0-9][0-9].yaml"), reverse=True)
+            for day_file in day_files:
                 day = int(day_file.stem)
                 date = datetime(year, month, day, tzinfo=timezone.utc)
                 if date > today:
+                    logger.debug("Skipping future date: %s", date.date())
                     continue
                 if date < cutoff:
+                    logger.debug("Reached cutoff date: %s", date.date())
                     break
+                logger.debug("Found schedule file: %s", day_file)
                 files.append(day_file)
     return files
 
@@ -110,7 +150,7 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
         if len(times) >= min_occurrences:  # Filter for recurring programs
             if series not in recurring:
                 recurring[series] = defaultdict(set)
-            recurring[series][channel].add((weekday, sorted(times)))
+            recurring[series][channel].add((weekday, tuple(sorted(times))))
 
     return recurring
 
@@ -137,6 +177,7 @@ def format_time(hour: int, minute: int) -> str:
 def main() -> None:
     """Analyze schedule files and report recurring programs."""
     args = parse_args()
+    setup_logging(args.debug)
 
     files = find_schedule_files(args.directory)
     if not files:
