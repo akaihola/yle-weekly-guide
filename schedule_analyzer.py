@@ -94,7 +94,9 @@ def find_schedule_files(root_dir: str, weeks: int = 4) -> list[Path]:
                         latest_date - timedelta(weeks=weeks),
                     )
                     logger.debug(
-                        "Date range: %s to %s", cutoff.date(), latest_date.date(),
+                        "Date range: %s to %s",
+                        cutoff.date(),
+                        latest_date.date(),
                     )
                 elif date < cutoff:
                     logger.debug("Reached cutoff date: %s", date.date())
@@ -122,8 +124,13 @@ def extract_programs(schedule: dict) -> list[tuple[str, datetime]]:
     return programs
 
 
-def analyze_recurring_programs(files: list[Path]) -> dict:
-    """Analyze programs to find recurring patterns."""
+def analyze_recurring_programs(files: list[Path]) -> list[tuple[int, int, int, str]]:
+    """Analyze programs to find recurring patterns.
+
+    Returns:
+        List of tuples (weekday, hour, minute, series) for recurring programs
+
+    """
     # Track occurrences of series+weekday+hour combinations
     occurrences = defaultdict(set)
 
@@ -139,22 +146,25 @@ def analyze_recurring_programs(files: list[Path]) -> dict:
             hour = start_time.hour
             minute = (start_time.minute // 5) * 5
 
-            key = (series, weekday)
-            occurrences[key].add((hour, minute))
+            key = (series, weekday, hour, minute)
+            occurrences[key].add(start_time.date())
 
     # Filter for programs occurring multiple times
-    recurring = defaultdict(set)
-    for (series, weekday), times in occurrences.items():
+    recurring = []
+    for (series, weekday, hour, minute), dates in occurrences.items():
         logger.debug(
-            "Analyzing series '%s' on %s with %d occurrences",
+            "Analyzing series '%s' on %s at %s with %d occurrences",
             series,
             weekday_name(weekday),
-            len(times),
+            format_time(hour, minute),
+            len(dates),
         )
         min_occurrences = 2
-        if len(times) >= min_occurrences:  # Filter for recurring programs
-            recurring[series].add((weekday, tuple(sorted(times))))
+        if len(dates) >= min_occurrences:  # Filter for recurring programs
+            recurring.append((weekday, hour, minute, series))
 
+    # Sort by time then weekday
+    recurring.sort()
     return recurring
 
 
@@ -201,13 +211,14 @@ def main() -> None:
 
     recurring = analyze_recurring_programs(files)
 
-    # Log results
-    for series in sorted(recurring.keys()):
-        logger.info("\nSarja: %s", series)
-        for weekday, times in sorted(recurring[series]):
-            logger.info("  %s:", weekday_name(weekday))
-            for hour, minute in times:
-                logger.info("    %s", format_time(hour, minute))
+    # Log results grouped by time
+    current_time = None
+    for weekday, hour, minute, series in recurring:
+        time_str = format_time(hour, minute)
+        if time_str != current_time:
+            current_time = time_str
+            logger.info("Aika: %s", time_str)
+        logger.info("  %s: %s", weekday_name(weekday), series)
 
 
 if __name__ == "__main__":
