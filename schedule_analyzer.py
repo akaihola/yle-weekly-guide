@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -49,6 +50,13 @@ def parse_args() -> argparse.Namespace:
         "--debug",
         action="store_true",
         help="Enable debug logging",
+    )
+    parser.add_argument(
+        "-f",
+        "--format",
+        choices=["text", "html"],
+        default="text",
+        help="Output format (text or html)",
     )
     return parser.parse_args()
 
@@ -280,7 +288,7 @@ def format_dates(dates: set[datetime.date]) -> str:
                 formatted_parts.append(f"{start.day}-{end.day}.{start.month}.")
             else:
                 formatted_parts.append(
-                    f"{start.day}.{start.month}.-{end.day}.{end.month}."
+                    f"{start.day}.{start.month}.-{end.day}.{end.month}.",
                 )
 
     return ", ".join(formatted_parts)
@@ -300,6 +308,58 @@ def count_weekday_occurrences(files: list[Path], weekday: int) -> int:
     return sum(1 for date in dates if date.weekday() == weekday)
 
 
+def generate_html_table(
+    by_weekday: dict[int, list[tuple[str, str, set[datetime.date]]]],
+    files: list[Path],
+) -> str:
+    """Generate HTML table for recurring programs."""
+    html = [
+        "<html><head><style>",
+        "table { border-collapse: collapse; }",
+        "th, td { border: 1px solid black; padding: 4px; }",
+        "th { background-color: #f0f0f0; }",
+        "</style></head><body>",
+        "<table>",
+    ]
+
+    # Get all unique dates from files
+    all_dates = sorted(
+        {
+            datetime.strptime(
+                f.parent.parent.name + f.parent.name + f.stem,
+                "%Y%m%d",
+            )
+            .replace(tzinfo=timezone.utc)
+            .date()
+            for f in files
+        },
+    )
+
+    for weekday in range(7):
+        if weekday in by_weekday:
+            # Header row with weekday and dates
+            week_dates = [d for d in all_dates if d.weekday() == weekday]
+            html.append("<tr>")
+            html.append(f"<th colspan='2'>{weekday_name(weekday)}</th>")
+            html.extend([f"<th>{date.day}.{date.month}.</th>" for date in week_dates])
+            html.append("</tr>")
+
+            # Program rows - each program gets its own row
+            for time_str, name, prog_dates in sorted(by_weekday[weekday]):
+                html.append("<tr>")
+                html.append(f"<td>{time_str}</td>")
+                html.append(f"<td>{name}</td>")
+
+                # Add markers for dates when program occurs
+                for date in week_dates:
+                    marker = "X" if date in prog_dates else ""
+                    html.append(f"<td>{marker}</td>")
+                html.append("</tr>")
+
+    html.append("</table></body></html>")
+    return "\n".join(html)
+
+
 def main() -> None:
     """Analyze schedule files and report recurring programs."""
     args = parse_args()
@@ -312,25 +372,33 @@ def main() -> None:
 
     recurring = analyze_recurring_programs(files)
 
-    # Group programs by weekday and time
-    by_weekday = defaultdict(lambda: defaultdict(list))
-    for weekday, hour, minute, series, dates in recurring:
-        time_str = format_time(hour, minute)
-        # Only add dates if program doesn't occur on every possible instance of
-        # this weekday
-        expected_occurrences = count_weekday_occurrences(files, weekday)
-        if len(dates) < expected_occurrences:
-            series_with_dates = f"{series} ({format_dates(dates)})"
-            by_weekday[weekday][time_str].append(series_with_dates)
-        else:
-            by_weekday[weekday][time_str].append(series)
+    if args.format == "html":
+        # For HTML, keep programs separate
+        by_weekday = defaultdict(list)
+        for weekday, hour, minute, series, dates in recurring:
+            time_str = format_time(hour, minute)
+            # Store program info as (time, name, dates) tuple
+            by_weekday[weekday].append((time_str, series, dates))
+        html_output = generate_html_table(by_weekday, files)
+        sys.stdout.write(html_output + "\n")
+    else:
+        # For text output, group by weekday and time
+        by_weekday_time = defaultdict(lambda: defaultdict(list))
+        for weekday, hour, minute, series, dates in recurring:
+            time_str = format_time(hour, minute)
+            expected_occurrences = count_weekday_occurrences(files, weekday)
+            if len(dates) < expected_occurrences:
+                series_with_dates = f"{series} ({format_dates(dates)})"
+                by_weekday_time[weekday][time_str].append(series_with_dates)
+            else:
+                by_weekday_time[weekday][time_str].append(series)
 
-    # Log results grouped by weekday then time
-    for weekday in range(7):  # 0-6 for Monday-Sunday
-        if weekday in by_weekday:
-            logger.info("%s:", weekday_name(weekday))
-            for time_str, series_list in sorted(by_weekday[weekday].items()):
-                logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
+        # Text output
+        for weekday in range(7):
+            if weekday in by_weekday_time:
+                logger.info("%s:", weekday_name(weekday))
+                for time_str, series_list in sorted(by_weekday_time[weekday].items()):
+                    logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
 
 
 if __name__ == "__main__":
