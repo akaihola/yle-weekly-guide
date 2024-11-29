@@ -3,6 +3,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "ruamel-yaml",
+#     "jinja2",
 # ]
 # ///
 """TV/Radio schedule analyzer for finding recurring programs."""
@@ -16,6 +17,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import jinja2
 from ruamel.yaml import YAML
 
 logger = logging.getLogger(__name__)
@@ -312,16 +314,7 @@ def generate_html_table(
     by_weekday: dict[int, list[tuple[str, str, set[datetime.date]]]],
     files: list[Path],
 ) -> str:
-    """Generate HTML table for recurring programs."""
-    html = [
-        "<html><head><style>",
-        "table { border-collapse: collapse; }",
-        "th, td { border: 1px solid black; padding: 4px; }",
-        "th { background-color: #f0f0f0; }",
-        "</style></head><body>",
-        "<table>",
-    ]
-
+    """Generate HTML table for recurring programs using Jinja2 template."""
     # Get all unique dates from files
     all_dates = sorted(
         {
@@ -335,29 +328,30 @@ def generate_html_table(
         },
     )
 
-    for weekday in range(7):
-        if weekday in by_weekday:
-            # Header row with weekday and dates
-            week_dates = [d for d in all_dates if d.weekday() == weekday]
-            html.append("<tr>")
-            html.append(f"<th colspan='2'>{weekday_name(weekday)}</th>")
-            html.extend([f"<th>{date.day}.{date.month}.</th>" for date in week_dates])
-            html.append("</tr>")
+    # Group dates by weekday for template
+    week_dates = {
+        weekday: [d for d in all_dates if d.weekday() == weekday]
+        for weekday in range(7)
+    }
 
-            # Program rows - each program gets its own row
-            for time_str, name, prog_dates in sorted(by_weekday[weekday]):
-                html.append("<tr>")
-                html.append(f"<td>{time_str}</td>")
-                html.append(f"<td>{name}</td>")
+    # Set up Jinja2 environment
+    template_dir = Path(__file__).parent / "templates"
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(template_dir),
+        autoescape=True,
+    )
+    env.globals["weekday_name"] = weekday_name
 
-                # Add markers for dates when program occurs
-                for date in week_dates:
-                    marker = "X" if date in prog_dates else ""
-                    html.append(f"<td>{marker}</td>")
-                html.append("</tr>")
+    # Copy schedule.js to output directory
+    js_source = template_dir / "schedule.js"
+    js_dest = Path("schedule.js")
+    js_dest.write_text(js_source.read_text())
 
-    html.append("</table></body></html>")
-    return "\n".join(html)
+    template = env.get_template("schedule.html")
+    return template.render(
+        by_weekday=by_weekday,
+        week_dates=week_dates,
+    )
 
 
 def main() -> None:

@@ -1,3 +1,9 @@
 [tool.pytest.ini_options]
 pythonpath = ["."]
 
+[project]
+dependencies = [
+    "ruamel.yaml",
+    "Jinja2>=3.1.0"
+]
+
