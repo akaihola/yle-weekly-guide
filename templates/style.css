@@ -41,3 +41,22 @@ th {
   color: blue;
   text-decoration: underline;
 }
+
+@media print {
+  /* Hide the hidden programs section when printing */
+  .hidden-programs {
+    display: none;
+  }
+
+  /* Force page break before each weekday section */
+  tr:has(th[colspan="2"]) {
+    break-before: page;
+  }
+
+  /* Remove pointer and color from toggle buttons when printing */
+  .toggle-btn {
+    cursor: default;
+    color: black;
+    text-decoration: none;
+  }
+}
