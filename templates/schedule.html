@@ -23,7 +23,7 @@
             <tr>
                 <th colspan='2'>{{ weekday_name(weekday) }}</th>
                 {% for date in week_dates[weekday] %}
-                    <th>{{ date.day }}.{{ date.month }}.</th>
+                    <th>{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
                 {% endfor %}
             </tr>
 
@@ -33,7 +33,7 @@
                     <td>{{ time_str }}</td>
                     <td><span class="toggle-btn" onclick="toggleProgram('{{ name }}')">{{ name }}</span></td>
                     {% for date in week_dates[weekday] %}
-                        <td>{{ 'X' if date in prog_dates else '' }}</td>
+                        <td>{{ 'X' if date and date in prog_dates else '' }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}

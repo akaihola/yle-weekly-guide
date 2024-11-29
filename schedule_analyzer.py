@@ -315,7 +315,8 @@ def generate_html_table(
     files: list[Path],
 ) -> str:
     """Generate HTML table for recurring programs using Jinja2 template."""
-    # Get all unique dates from files
+    # Get all unique dates from files and include today
+    today = datetime.now(tz=timezone.utc).date()
     all_dates = sorted(
         {
             datetime.strptime(
@@ -325,12 +326,29 @@ def generate_html_table(
             .replace(tzinfo=timezone.utc)
             .date()
             for f in files
-        },
+        }
+        | {today},
     )
 
-    # Group dates by weekday for template
+    # Group dates by week and weekday for template
+    week_dates = defaultdict(lambda: defaultdict(list))
+    for date in all_dates:
+        # Get the Monday of this week
+        monday = date - timedelta(days=date.weekday())
+        week_dates[monday][date.weekday()].append(date)
+
+    # Convert to format expected by template, adding empty entries before first date
+    first_date = min(all_dates)
     week_dates = {
-        weekday: [d for d in all_dates if d.weekday() == weekday]
+        weekday: (
+            # Add empty entries for days before first content
+            [None] * (1 if weekday < first_date.weekday() else 0)
+            + [
+                date
+                for monday in sorted(week_dates.keys())
+                for date in week_dates[monday].get(weekday, [])
+            ]
+        )
         for weekday in range(7)
     }
 
