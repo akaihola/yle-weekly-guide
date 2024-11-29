@@ -360,10 +360,11 @@ def generate_html_table(
     )
     env.globals["weekday_name"] = weekday_name
 
-    # Copy schedule.js to output directory
-    js_source = template_dir / "schedule.js"
-    js_dest = Path("schedule.js")
-    js_dest.write_text(js_source.read_text())
+    # Copy static files to output directory
+    for static_file in ["schedule.js", "style.css"]:
+        source = template_dir / static_file
+        dest = Path(static_file)
+        dest.write_text(source.read_text())
 
     template = env.get_template("schedule.html")
     return template.render(

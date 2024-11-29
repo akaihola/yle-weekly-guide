@@ -1,0 +1,43 @@
+table {
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f1f1f1;
+}
+
+.channel-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.program-time {
+  font-weight: bold;
+}
+
+.program-title {
+  font-style: italic;
+}
+
+.hidden-programs {
+  margin-top: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.toggle-btn {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
