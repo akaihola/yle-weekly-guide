@@ -13,6 +13,7 @@ th, td {
 
 th {
   background-color: #f1f1f1;
+  text-align: center;
 }
 
 .channel-name {
@@ -36,10 +37,51 @@ th {
   display: none;
 }
 
-.toggle-btn {
+.program-cell {
   cursor: pointer;
-  color: blue;
-  text-decoration: underline;
+  position: relative;
+}
+
+.program-cell:hover {
+  background-color: #f5f5f5;
+}
+
+/* Show "piilota" text on hover for table cells */
+.program-cell:hover::after {
+  content: 'piilota';
+  position: absolute;
+  right: 8px;
+  color: #666;
+  font-size: 0.8em;
+}
+
+/* Style for hidden programs list items */
+#hidden-programs li {
+  cursor: pointer;
+  padding: 4px 8px;
+  position: relative;
+}
+
+#hidden-programs li:hover {
+  background-color: #f5f5f5;
+}
+
+#hidden-programs li:hover::after {
+  content: 'näytä';
+  position: absolute;
+  right: 8px;
+  color: #666;
+  font-size: 0.8em;
+}
+
+.marked {
+  background-color: #f8f8f8;
+}
+
+td.marked {
+  color: #2e7d32;
+  font-weight: bold;
+  text-align: center;
 }
 
 @media print {

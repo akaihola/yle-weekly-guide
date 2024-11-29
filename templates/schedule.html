@@ -24,9 +24,9 @@
             {% for time_str, name, prog_dates in programs|sort %}
                 <tr data-program='{{ name }}'>
                     <td>{{ time_str }}</td>
-                    <td><span class="toggle-btn" onclick="toggleProgram('{{ name }}')">{{ name }}</span></td>
+                    <td class="program-cell" onclick="toggleProgram('{{ name }}')">{{ name }}</td>
                     {% for date in week_dates[weekday] %}
-                        <td>{{ 'X' if date and date in prog_dates else '' }}</td>
+                        <td class="{{ 'marked' if date and date in prog_dates }}">{{ '✓' if date and date in prog_dates else '' }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}
