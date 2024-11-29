@@ -131,6 +131,7 @@ def load_schedule(file_path: Path) -> dict:
 
 def normalize_program_name(name: str) -> str:
     """Normalize program names with custom rules."""
+    name = name.strip()
     if name == "Yle Uutiset ja sää":
         return "Yle Uutiset"
     return name

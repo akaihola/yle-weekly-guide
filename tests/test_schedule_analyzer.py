@@ -1,8 +1,8 @@
-"""Tests for the schedule_analyzer module's date formatting functions."""
+"""Tests for the schedule_analyzer module's core functions."""
 
 from datetime import date
 
-from schedule_analyzer import format_dates
+from schedule_analyzer import format_dates, normalize_program_name
 
 
 def test_format_dates_same_month_sequence() -> None:
@@ -61,3 +61,24 @@ def test_format_dates_sequence_with_gap() -> None:
         date(2024, 1, 2),
     }
     assert format_dates(dates) == "5-19.12., 2.1."
+
+
+def test_normalize_program_name_uutiset_ja_saa() -> None:
+    """Test normalizing 'Yle Uutiset ja sää' to 'Yle Uutiset'."""
+    assert normalize_program_name("Yle Uutiset ja sää") == "Yle Uutiset"
+
+
+def test_normalize_program_name_regular() -> None:
+    """Test that regular program names are returned unchanged."""
+    name = "Kauniit ja rohkeat"
+    assert normalize_program_name(name) == name
+
+
+def test_normalize_program_name_empty() -> None:
+    """Test normalizing an empty string."""
+    assert normalize_program_name("") == ""
+
+
+def test_normalize_program_name_whitespace() -> None:
+    """Test normalizing strings with extra whitespace."""
+    assert normalize_program_name("  Yle Uutiset ja sää  ") == "Yle Uutiset"
