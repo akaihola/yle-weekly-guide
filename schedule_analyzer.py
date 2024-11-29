@@ -113,13 +113,20 @@ def load_schedule(file_path: Path) -> dict:
         return yaml.load(f)
 
 
+def normalize_program_name(name: str) -> str:
+    """Normalize program names with custom rules."""
+    if name == "Yle Uutiset ja sää":
+        return "Yle Uutiset"
+    return name
+
+
 def extract_programs(schedule: dict) -> list[tuple[str, datetime]]:
     """Extract program entries from schedule data."""
     programs = []
     content = next(iter(schedule.get("data", {}).values()))
     for prog in content.get("programmes", []):
         start_time = datetime.fromisoformat(prog["start_time"])
-        series = prog.get("series", prog.get("title", ""))
+        series = normalize_program_name(prog.get("series", prog.get("title", "")))
         programs.append((series, start_time))
     return programs
 
@@ -239,46 +246,44 @@ def format_dates(dates: set[datetime.date]) -> str:
         (1/8/22.12.) - Same month, non-sequential
         (1-22.12.) - Same month, sequential
         (30.11.-14.12.) - Multi-month range
-        (30.11. - 7/14/21.12.) - Multi-month with non-sequential dates
+        (30.11., 7/14/21.12.) - Multi-month with non-sequential dates
+        (5-19.12., 2.1.) - Sequential range followed by non-sequential date
 
     """
     sorted_dates = sorted(dates)
     if not sorted_dates:
         return ""
 
-    # Check if all dates are in the same month
-    same_month = all(d.month == sorted_dates[0].month for d in sorted_dates)
-
     weekly_interval = 7  # Days between weekly recurring programs
-    # Check if dates form a sequence with 7-day intervals
-    is_sequence = all(
-        (b - a).days == weekly_interval for a, b in zip(sorted_dates, sorted_dates[1:])
-    )
 
-    if same_month:
-        if is_sequence:
-            # Same month sequence: (1-22.12.)
-            return (
-                f"{sorted_dates[0].day}-{sorted_dates[-1].day}.{sorted_dates[0].month}."
-            )
-        # Same month non-sequence: (1/8/22.12.)
-        return f"{'/'.join(str(d.day) for d in sorted_dates)}.{sorted_dates[0].month}."
-    if is_sequence:
-        # Multi-month sequence: (30.11.-14.12.)
-        return (
-            f"{sorted_dates[0].day}.{sorted_dates[0].month}.-"
-            f"{sorted_dates[-1].day}.{sorted_dates[-1].month}."
-        )
-    # Multi-month non-sequence: (30.11. - 7/14/21.12.)
-    first_date = f"{sorted_dates[0].day}.{sorted_dates[0].month}."
-    remaining = sorted_dates[1:]
-    if all(d.month == remaining[0].month for d in remaining):
-        # All remaining dates in same month
-        last_part = f"{'/'.join(str(d.day) for d in remaining)}.{remaining[0].month}."
-    else:
-        # Mixed months in remaining dates
-        last_part = ", ".join(f"{d.day}.{d.month}." for d in remaining)
-    return f"{first_date} - {last_part}"
+    # Split dates into sequential groups
+    sequences = []
+    current_seq = [sorted_dates[0]]
+
+    for prev, curr in zip(sorted_dates, sorted_dates[1:]):
+        if (curr - prev).days == weekly_interval:
+            current_seq.append(curr)
+        else:
+            sequences.append(current_seq)
+            current_seq = [curr]
+    sequences.append(current_seq)
+
+    # Format each sequence
+    formatted_parts = []
+    for sequence in sequences:
+        if len(sequence) == 1:
+            d = sequence[0]
+            formatted_parts.append(f"{d.day}.{d.month}.")
+        else:
+            start, end = sequence[0], sequence[-1]
+            if start.month == end.month:
+                formatted_parts.append(f"{start.day}-{end.day}.{start.month}.")
+            else:
+                formatted_parts.append(
+                    f"{start.day}.{start.month}.-{end.day}.{end.month}."
+                )
+
+    return ", ".join(formatted_parts)
 
 
 def count_weekday_occurrences(files: list[Path], weekday: int) -> int:

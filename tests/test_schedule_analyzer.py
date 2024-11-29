@@ -23,7 +23,7 @@ def test_format_dates_same_month_non_sequence() -> None:
         date(2023, 12, 8),
         date(2023, 12, 22),
     }
-    assert format_dates(dates) == "1/8/22.12."
+    assert format_dates(dates) == "1-8.12., 22.12."
 
 
 def test_format_dates_multi_month_sequence() -> None:
@@ -44,9 +44,20 @@ def test_format_dates_multi_month_mixed() -> None:
         date(2023, 12, 7),
         date(2023, 12, 21),  # Skip 14th to make non-sequential
     }
-    assert format_dates(dates) == "30.11. - 7/21.12."
+    assert format_dates(dates) == "30.11.-7.12., 21.12."
 
 
 def test_format_dates_empty() -> None:
     """Test formatting an empty set of dates."""
     assert format_dates(set()) == ""
+
+
+def test_format_dates_sequence_with_gap() -> None:
+    """Test formatting dates with a sequence followed by a non-sequential date."""
+    dates = {
+        date(2023, 12, 5),
+        date(2023, 12, 12),
+        date(2023, 12, 19),
+        date(2024, 1, 2),
+    }
+    assert format_dates(dates) == "5-19.12., 2.1."
