@@ -91,7 +91,8 @@ td.marked {
   }
 
   /* Force page break before each weekday section */
-  tr:has(th[colspan="2"]) {
+  tr:first-child,
+  tr:has(th:first-child:not(:empty)) {
     break-before: page;
   }
 
