@@ -211,14 +211,18 @@ def main() -> None:
 
     recurring = analyze_recurring_programs(files)
 
-    # Log results grouped by time
-    current_time = None
+    # Group programs by weekday and time
+    by_weekday = defaultdict(lambda: defaultdict(list))
     for weekday, hour, minute, series in recurring:
         time_str = format_time(hour, minute)
-        if time_str != current_time:
-            current_time = time_str
-            logger.info("Aika: %s", time_str)
-        logger.info("  %s: %s", weekday_name(weekday), series)
+        by_weekday[weekday][time_str].append(series)
+
+    # Log results grouped by weekday then time
+    for weekday in range(7):  # 0-6 for Monday-Sunday
+        if weekday in by_weekday:
+            logger.info("%s:", weekday_name(weekday))
+            for time_str, series_list in sorted(by_weekday[weekday].items()):
+                logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
 
 
 if __name__ == "__main__":
