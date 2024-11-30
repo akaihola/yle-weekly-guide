@@ -22,9 +22,23 @@ th, td {
   text-align: left;
 }
 
+/* Sticky header container */
+thead {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f1f1f1;
+}
+
 th {
   background-color: #f1f1f1;
   text-align: center;
+}
+
+/* Add a subtle shadow to make the sticky header more visible */
+tr:has(th) {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* First column (time) should be no wider than content */

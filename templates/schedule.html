@@ -18,7 +18,8 @@
     <table>
         {% for weekday, programs in by_weekday.items() if programs %}
             {# Header row with weekday and dates #}
-            <tr>
+            <thead>
+              <tr>
                 <th>{{ weekday_name(weekday) }}</th>
                 {% for date in week_dates[weekday] %}
                     <th>{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
@@ -28,7 +29,8 @@
                     <th></th>
                 {% endfor %}
                 <th>Ohjelma</th>
-            </tr>
+              </tr>
+            </thead>
 
             {# Program rows #}
             {% for time_str, name, prog_dates in programs|sort %}
