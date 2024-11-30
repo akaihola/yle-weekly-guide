@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "ruamel-yaml",
-#     "jinja2",
-#     "babel",
-# ]
-# ///
 """TV/Radio schedule analyzer for finding recurring programs."""
 
 from __future__ import annotations
