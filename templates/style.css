@@ -1,7 +1,18 @@
+:root {
+  font-size: 16px;
+}
+
+/* Adjust base font size for mobile */
+@media screen and (max-width: 768px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
 table {
   border-collapse: collapse;
   font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   width: 100%;
 }
 
@@ -25,7 +36,7 @@ th:first-child {
 
 .channel-name {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .program-time {
@@ -115,9 +126,9 @@ th:first-child {
 
 #hidden-programs li {
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 0.25rem 0.5rem;
   position: relative;
-  font-size: 14px;  /* Match the table font size */
+  font-size: 0.875rem;
   line-height: 1.4;
 }
 

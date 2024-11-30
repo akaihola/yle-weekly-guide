@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -35,40 +34,37 @@ def generate_html_table(
     files: list[Path],
 ) -> str:
     """Generate HTML table for recurring programs using Jinja2 template."""
-    # Get all unique dates from files and include today
-    today = datetime.now(timezone.utc).date()
-    all_dates = sorted(
-        {
-            datetime.strptime(
-                f.parent.parent.name + f.parent.name + f.stem + "+0000",
-                "%Y%m%d%z",
-            ).date()
-            for f in files
-        }
-        | {today},
-    )
-
-    # Group dates by week and weekday for template
-    week_dates = defaultdict(lambda: defaultdict(list))
-    for current_date in all_dates:
-        monday = current_date - timedelta(days=current_date.weekday())
-        week_dates[monday][current_date.weekday()].append(current_date)
-
-    # Convert to format expected by template
-    first_date = min(all_dates)
-    week_dates = {
-        weekday: (
-            [None] * (1 if weekday < first_date.weekday() else 0)
-            + [
-                date
-                for monday in sorted(week_dates.keys())
-                for date in week_dates[monday].get(weekday, [])
-            ]
-        )
-        for weekday in range(7)
+    # Get all unique dates from files
+    file_dates = {
+        datetime.strptime(
+            f.parent.parent.name + f.parent.name + f.stem + "+0000",
+            "%Y%m%d%z",
+        ).date()
+        for f in files
     }
 
-    max_dates = max(len(dates) for dates in week_dates.values())
+    # Calculate the date range to show
+    today = datetime.now(timezone.utc).date()
+    current_monday = today - timedelta(days=today.weekday())
+    last_data_monday = max(file_dates) - timedelta(days=max(file_dates).weekday())
+
+    # We want to show 5 weeks including the current week and going forward to last data
+    # If we don't have enough future weeks, we'll backfill with past weeks
+    weeks_to_show = 5
+    weeks_forward = (last_data_monday - current_monday).days // 7 + 1
+    weeks_backward = max(0, weeks_to_show - weeks_forward)
+
+    start_monday = current_monday - timedelta(weeks=weeks_backward)
+
+    # Generate all dates we want to show
+    week_dates = {weekday: [] for weekday in range(7)}
+    for week in range(weeks_to_show):
+        week_start = start_monday + timedelta(weeks=week)
+        for weekday in range(7):
+            date = week_start + timedelta(days=weekday)
+            week_dates[weekday].append(date)
+
+    max_dates = weeks_to_show  # Always 5 weeks
 
     # Set up Jinja2 environment
     template_dir = Path(__file__).parent
