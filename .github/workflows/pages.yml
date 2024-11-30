@@ -41,6 +41,9 @@ jobs:
           path: yle-guide-scraper
 
       - name: Run schedule analyzer
+        env:
+          LANG: fi_FI.UTF-8
+          LC_ALL: fi_FI.UTF-8
         run: |
           source .venv/bin/activate
           mkdir _site
