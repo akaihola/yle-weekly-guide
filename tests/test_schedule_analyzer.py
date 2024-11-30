@@ -245,13 +245,13 @@ def test_weekday_names_finnish(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LANG", "fi_FI.UTF-8")
 
     expected = [
-        "maanantaina",
-        "tiistaina",
-        "keskiviikkona",
-        "torstaina",
-        "perjantaina",
-        "lauantaina",
-        "sunnuntaina",
+        "ma",
+        "ti",
+        "ke",
+        "to",
+        "pe",
+        "la",
+        "su",
     ]
 
     for i, exp in enumerate(expected):
@@ -265,13 +265,13 @@ def test_weekday_names_english(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LANG", "en_US.UTF-8")
 
     expected = [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun",
     ]
 
     for i, exp in enumerate(expected):
@@ -284,7 +284,7 @@ def test_weekday_names_swedish(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setenv("LANG", "sv_SE.UTF-8")
 
-    expected = ["måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag", "söndag"]
+    expected = ["mån", "tis", "ons", "tors", "fre", "lör", "sön"]
 
     for i, exp in enumerate(expected):
         assert weekday_name(i).lower() == exp

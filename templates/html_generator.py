@@ -22,7 +22,7 @@ def weekday_name(day_num: int) -> str:
     # Create a date for the given weekday (using 2024 which starts on Monday)
     d = date(2024, 1, 1 + day_num)  # Jan 1, 2024 is Monday
     # Format just the weekday name using explicit locale
-    return format_date(d, format="EEEE", locale=locale).lower()
+    return format_date(d, format="E", locale=locale).lower()  # E gives abbreviated name
 
 
 def generate_html_table(
