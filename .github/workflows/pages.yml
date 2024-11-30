@@ -1,0 +1,63 @@
+---
+name: Build and Deploy GitHub Pages
+
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: '30 2 * * *'  # Run at 02:30 UTC daily
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - uses: astral-sh/setup-uv@v3
+      - name: Install dependencies
+        run: uv pip install ".[test]"
+
+      - name: Clone yle-guide-scraper
+        uses: actions/checkout@v4
+        with:
+          repository: akaihola/yle-guide-scraper
+          path: yle-guide-scraper
+
+      - name: Run schedule analyzer
+        run: |
+          mkdir _site
+          python schedule_analyzer.py \
+            -d yle-guide-scraper/yle/yle-radio-1 \
+            -f html > _site/index.html
+          cp templates/schedule.js templates/style.css _site/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
