@@ -10,14 +10,19 @@ import jinja2
 from babel.core import Locale
 from babel.dates import format_date
 
+MAX_WEEKDAY = 6  # Sunday (0-based indexing)
+
 
 def weekday_name(day_num: int) -> str:
     """Convert weekday number to name using system locale."""
     import os
 
-    # Get locale from environment
+    if not 0 <= day_num <= MAX_WEEKDAY:
+        msg = f"Invalid weekday number: {day_num}. Must be 0-{MAX_WEEKDAY}."
+        raise ValueError(msg)
+
     lang = os.environ.get("LANG", "en_US.UTF-8").split(".")[0]
-    locale = Locale.parse(lang)
+    locale = Locale.parse(lang)  # Let UnknownLocaleError propagate
 
     # Create a date for the given weekday (using 2024 which starts on Monday)
     d = date(2024, 1, 1 + day_num)  # Jan 1, 2024 is Monday
