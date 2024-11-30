@@ -151,6 +151,7 @@ def extract_programs(schedule: dict) -> list[tuple[str, datetime]]:
 
 def analyze_recurring_programs(
     files: list[Path],
+    min_occurrences: int = 2,
 ) -> list[tuple[int, int, int, str, set[datetime.date]]]:
     """Analyze programs to find recurring patterns.
 
@@ -201,7 +202,6 @@ def analyze_recurring_programs(
 
     # Filter for programs occurring multiple times
     recurring = []
-    min_occurrences = 2
     for (series, weekday), time_slots in occurrences.items():
         for (earliest, latest), dates in time_slots:
             if len(dates) >= min_occurrences:

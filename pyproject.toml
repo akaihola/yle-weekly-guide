@@ -1,9 +1,26 @@
+[build-system]
+requires = ["flit_core>=3.9.0"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "tv-schedule-analyzer"
+version = "0.1.0"
+description = "Analyze TV/radio program schedules to identify recurring programs"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+readme = "README.rst"
+requires-python = ">=3.12"
+dependencies = [
+    "ruamel.yaml",
+    "Jinja2>=3.1.0",
+    "babel>=2.0.0"
+]
+
+[project.scripts]
+schedule-analyzer = "schedule_analyzer:main"
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 
-[project]
-dependencies = [
-    "ruamel.yaml",
-    "Jinja2>=3.1.0"
-]
+[tool.flit.module]
+name = "schedule_analyzer"
 
