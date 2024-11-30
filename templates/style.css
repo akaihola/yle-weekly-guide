@@ -56,10 +56,19 @@ th {
 }
 
 /* Style for hidden programs list items */
+#hidden-programs {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 #hidden-programs li {
   cursor: pointer;
   padding: 4px 8px;
   position: relative;
+  font-size: 14px;  /* Match the table font size */
+  line-height: 1.4;
 }
 
 #hidden-programs li:hover {
