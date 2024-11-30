@@ -29,8 +29,10 @@ jobs:
           python-version: '3.12'
 
       - uses: astral-sh/setup-uv@v3
-      - name: Install dependencies
-        run: uv pip install ".[test]"
+      - name: Setup virtual environment and install dependencies
+        run: |
+          uv venv
+          uv pip install ".[test]"
 
       - name: Clone yle-guide-scraper
         uses: actions/checkout@v4
