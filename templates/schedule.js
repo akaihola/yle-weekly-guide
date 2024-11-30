@@ -10,7 +10,7 @@ function loadHiddenPrograms() {
 function saveHiddenPrograms() {
     const hiddenList = document.getElementById('hidden-programs');
     const hiddenPrograms = Array.from(hiddenList.children).map(li => 
-        li.querySelector('.toggle-btn').textContent
+        li.querySelector('.program-name').textContent
     );
     localStorage.setItem('hiddenPrograms', JSON.stringify(hiddenPrograms));
 }
