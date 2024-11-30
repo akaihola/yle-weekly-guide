@@ -5,9 +5,13 @@
     <script src="schedule.js"></script>
 </head>
 <body>
-    <div class='hidden-programs'>
-        <h3>Hidden Programs:</h3>
-        <ul id='hidden-programs'></ul>
+    <div id="drawer" class="drawer">
+        <div class="drawer-tab" onclick="toggleDrawer()">
+            <span id="hidden-count">0</span> programs hidden
+        </div>
+        <div class="drawer-content">
+            <ul id='hidden-programs'></ul>
+        </div>
     </div>
     
     <table>

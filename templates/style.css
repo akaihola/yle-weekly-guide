@@ -36,8 +36,51 @@ th:first-child {
   font-style: italic;
 }
 
-.hidden-programs {
-  margin-top: 20px;
+.drawer {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  transform: translateY(calc(100% - 40px));
+  z-index: 1000;
+}
+
+.drawer.open {
+  transform: translateY(0);
+}
+
+.drawer-tab {
+  padding: 10px 20px;
+  background: #f1f1f1;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-weight: bold;
+  text-align: center;
+}
+
+.drawer-tab:hover {
+  background: #e5e5e5;
+}
+
+.drawer-tab::before {
+  content: '▲';
+  margin-right: 8px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.drawer.open .drawer-tab::before {
+  transform: rotate(180deg);
+}
+
+.drawer-content {
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .hidden {
@@ -102,8 +145,9 @@ td.marked {
 
 @media print {
   /* Hide the hidden programs section when printing */
-  .hidden-programs {
-    display: none;
+  .hidden-programs,
+  .drawer {
+    display: none !important;
   }
 
   /* Force page break before each weekday section */
