@@ -42,6 +42,7 @@ jobs:
 
       - name: Run schedule analyzer
         run: |
+          source .venv/bin/activate
           mkdir _site
           python schedule_analyzer.py \
             -d yle-guide-scraper/yle/yle-radio-1 \
