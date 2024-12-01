@@ -44,6 +44,10 @@ HTML Format
 ~~~~~~~~~~
 The ``--format html`` option generates an interactive web page that:
 
+You can see a live demo at https://akaihola.github.io/yle-weekly-guide
+
+The page:
+
 - Shows a 5-week schedule grid
 - Highlights the current time and week
 - Allows hiding/showing programs via a drawer interface
