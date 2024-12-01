@@ -31,6 +31,17 @@ thead {
     background-color: #f1f1f1;
 }
 
+@media print {
+    thead {
+        position: static;
+        top: auto;
+        z-index: auto;
+        display: table-row-group;
+        break-after: avoid;
+        break-before: page;
+    }
+}
+
 th {
     background-color: #f1f1f1;
     text-align: center;
@@ -225,8 +236,7 @@ tr.current-time td.current-week.marked {
     }
 
     /* Force page break before each weekday section */
-    tr:first-child,
-    tr:has(th:first-child:not(:empty)) {
+    thead {
         break-before: page;
     }
 
