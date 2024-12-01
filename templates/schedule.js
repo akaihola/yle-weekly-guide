@@ -71,8 +71,13 @@ export function updateTimeHighlight() {
     document.querySelectorAll('.current-time, .current-week').forEach(el => 
         el.classList.remove('current-time', 'current-week'));
     
+    // Get timezone from table or use default
+    const timezone = document.querySelector('table').dataset.timezone || 'Europe/Helsinki';
+    const options = { timeZone: timezone };
+
+    // Get current time in the target timezone 
     const now = new Date();
-    const today = now.toISOString().split('T')[0];  // YYYY-MM-DD format
+    const today = now.toLocaleString('sv', options).split(' ')[0];
     
     // Find today's column
     const todayColumn = document.querySelector(`th[data-date="${today}"]`);
@@ -95,13 +100,21 @@ export function updateTimeHighlight() {
         });
     }
 
+    // Get current weekday (1-7, Monday is 1, Sunday is 7)
+    const weekday = new Date(today).getDay() || 7;  // Convert Sunday from 0 to 7
+    
     // Find the current or most recent program row
-    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const timeStr = now.toLocaleTimeString('sv', options);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const currentTime = hours * 60 + minutes;
     let lastMatchingRow = null;
 
     // Only process rows if we found today's column
     if (todayColumn) {
-        document.querySelectorAll('tr').forEach(row => {
+        const tbody = document.querySelector(`tbody[data-iso-weekday="${weekday}"]`);
+        if (!tbody) return;
+        
+        tbody.querySelectorAll('tr').forEach(row => {
             const timeCell = row.querySelector('td:first-child');
             const programCell = row.children[columnIndex];
             if (timeCell && programCell?.classList.contains('marked')) {

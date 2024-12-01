@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <script type="module" src="schedule.js"></script>
@@ -33,6 +34,7 @@
             </thead>
 
             {# Program rows #}
+            <tbody data-iso-weekday="{{ weekday + 1 }}">
             {% for time_str, name, prog_dates in programs|sort %}
                 <tr data-program='{{ name }}'>
                     <td>{{ time_str }}</td>
@@ -50,6 +52,7 @@
                     <td class="program-cell" onclick="toggleProgram('{{ name }}')">{{ name }}</td>
                 </tr>
             {% endfor %}
+            </tbody>
         {% endfor %}
     </table>
 </body>
