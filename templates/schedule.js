@@ -33,8 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentHeader = document.getElementById(`iso-weekday-${weekday}`);
         if (currentHeader) {
             currentHeader.scrollIntoView();
-            // Update URL with anchor
-            window.location.hash = `#iso-weekday-${weekday}`;
         }
     }
 });
