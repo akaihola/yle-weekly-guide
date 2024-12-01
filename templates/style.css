@@ -217,9 +217,10 @@ tr.current-time td.current-week.marked {
 }
 
 @media print {
-    /* Hide the hidden programs section when printing */
+    /* Hide the hidden programs section and GitHub corner when printing */
     .hidden-programs,
-    .drawer {
+    .drawer,
+    .github-corner {
         display: none !important;
     }
 
