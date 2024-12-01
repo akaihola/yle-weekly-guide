@@ -85,6 +85,9 @@ function toggleProgram(programName, save = true) {
     if (save) {
         saveHiddenPrograms();
     }
+
+    // Update time highlight after visibility changes
+    updateTimeHighlight();
 }
 
 export function updateTimeHighlight() {
