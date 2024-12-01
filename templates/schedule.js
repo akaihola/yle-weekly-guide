@@ -53,8 +53,13 @@ export function updateTimeHighlight() {
     const now = new Date();
     const today = now.toISOString().split('T')[0];  // YYYY-MM-DD format
     
-    // Find today's column and its index
+    // Find today's column
     const todayColumn = document.querySelector(`th[data-date="${today}"]`);
+    if (!todayColumn) {
+        return;
+    }
+
+    // Get column index
     const columnIndex = todayColumn 
         ? Array.from(todayColumn.parentElement.children).indexOf(todayColumn)
         : -1;
@@ -87,7 +92,7 @@ export function updateTimeHighlight() {
                     [24, 0];
                 const nextRowTime = nextTime[0] * 60 + nextTime[1];
                 
-                if (rowTime <= currentTime && currentTime < nextRowTime) {
+                if (rowTime <= currentTime) {
                     lastMatchingRow = row;
                 }
             }
