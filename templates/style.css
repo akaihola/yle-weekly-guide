@@ -1,249 +1,239 @@
 :root {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 /* Adjust base font size for mobile */
 @media screen and (max-width: 768px) {
-  :root {
-    font-size: 15px;
-  }
+    :root {
+        font-size: 15px;
+    }
 }
 
 table {
-  border-collapse: collapse;
-  font-family: Arial, sans-serif;
-  font-size: 1rem;
-  width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    width: 100%;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 4px 6px;
-  text-align: left;
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 4px 6px;
+    text-align: left;
 }
 
 /* Sticky header container */
 thead {
-  position: sticky;
-  position: -webkit-sticky;
-  top: 0;
-  z-index: 1;
-  background-color: #f1f1f1;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f1f1f1;
 }
 
 th {
-  background-color: #f1f1f1;
-  text-align: center;
+    background-color: #f1f1f1;
+    text-align: center;
 }
 
 /* Add a subtle shadow to make the sticky header more visible */
 tr:has(th) {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 10%);
 }
 
 /* First column (time) should be no wider than content */
 td:first-child,
 th:first-child {
-  width: 1%;
-  white-space: nowrap;
+    width: 1%;
+    white-space: nowrap;
 }
 
 .channel-name {
-  font-weight: bold;
-  font-size: 1rem;
+    font-weight: bold;
+    font-size: 1rem;
 }
 
 .program-time {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .program-title {
-  font-style: italic;
+    font-style: italic;
 }
 
 .drawer {
-  position: fixed;
-  bottom: 0;
-  right: 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
-  transform: translateY(calc(100% - 40px));
-  z-index: 1000;
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 10%);
+    transition: transform 0.3s ease;
+    transform: translateY(calc(100% - 40px));
+    z-index: 1000;
 }
 
 .drawer.open {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 .drawer-tab {
-  padding: 10px 20px;
-  background: #f1f1f1;
-  cursor: pointer;
-  border-radius: 8px 8px 0 0;
-  font-weight: bold;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    padding: 10px 20px;
+    background: #f1f1f1;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    font-weight: bold;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .drawer-tab:hover {
-  background: #e5e5e5;
+    background: #e5e5e5;
 }
 
 .hidden-count {
-  text-align: center;
-  flex-grow: 1;
-  min-width: 120px;
-  padding: 0 30px;
+    text-align: center;
+    flex-grow: 1;
+    min-width: 120px;
+    padding: 0 30px;
 }
 
 .globe-icon {
-  position: absolute;
-  right: 20px;
+    position: absolute;
+    right: 20px;
 }
 
 .drawer-arrow {
-  position: absolute;
-  left: 20px;
-  transition: transform 0.3s ease;
+    position: absolute;
+    left: 20px;
+    transition: transform 0.3s ease;
 }
 
 .drawer.open .drawer-tab::before {
-  transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .drawer-content {
-  padding: 10px;
-  max-height: 300px;
-  overflow-y: auto;
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .language-toggle {
-  text-align: right;
-  margin-bottom: 10px;
+    text-align: right;
+    margin-bottom: 10px;
 }
 
 .language-toggle button {
-  margin-left: 8px;
+    margin-left: 8px;
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .program-cell {
-  cursor: pointer;
-  position: relative;
+    cursor: pointer;
+    position: relative;
 }
 
 .program-cell:hover {
-  background-color: #f5f5f5;
+    background-color: #f5f5f5;
 }
 
 /* Show hide/show text on hover for table cells */
 .program-cell:hover::after {
-  content: attr(data-action);
-  position: absolute;
-  right: 8px;
-  color: #666;
-  font-size: 0.8em;
+    content: attr(data-action);
+    position: absolute;
+    right: 8px;
+    color: #666;
+    font-size: 0.8em;
 }
 
 /* Style for hidden programs list items */
 #hidden-programs {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 #hidden-programs li {
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  position: relative;
-  font-size: 0.875rem;
-  line-height: 1.4;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    position: relative;
+    font-size: 0.875rem;
+    line-height: 1.4;
 }
 
 #hidden-programs li:hover {
-  background-color: #f5f5f5;
+    background-color: #f5f5f5;
 }
 
 #hidden-programs li:hover::after {
-  content: attr(data-action);
-  position: absolute;
-  right: 8px;
-  color: #666;
-  font-size: 0.8em;
-}
-
-.marked {
-  background-color: #f8f8f8;
-}
-
-td.marked {
-  color: #2e7d32;
-  font-weight: bold;
-  text-align: center;
+    content: attr(data-action);
+    position: absolute;
+    right: 8px;
+    color: #666;
+    font-size: 0.8em;
 }
 
 /* Current time and week highlighting */
+
 /* Time highlighting */
 tr.current-time {
-  background-color: rgba(255, 243, 224, 0.3);  /* Light orange background */
+    background-color: rgba(255, 243, 224, 30%); /* Light orange background */
 }
 
 /* Week highlighting */
 td.current-week {
-  background-color: rgba(232, 245, 233, 0.3);  /* Light green background */
+    background-color: rgba(232, 245, 233, 30%); /* Light green background */
 }
 
 /* Marked program */
 td.marked {
-  background-color: #f8f8f8;
-  color: #2e7d32;
-  font-weight: bold;
+    background-color: #f8f8f8;
+    color: #2e7d32;
+    font-weight: bold;
+    text-align: center;
 }
 
 /* Marked program in current time row */
 tr.current-time td.marked {
-  background-color: rgba(255, 243, 224, 0.8);  /* Stronger orange */
+    background-color: rgba(255, 243, 224, 80%); /* Stronger orange */
 }
 
 /* Marked program in current week */
 td.current-week.marked {
-  background-color: rgba(232, 245, 233, 0.8);  /* Stronger green */
+    background-color: rgba(232, 245, 233, 80%); /* Stronger green */
 }
 
 /* Marked program at current time in current week */
 tr.current-time td.current-week.marked {
-  background-color: #4caf50;  /* Prominent green */
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    background-color: #4caf50; /* Prominent green */
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 20%);
 }
 
 @media print {
-  /* Hide the hidden programs section when printing */
-  .hidden-programs,
-  .drawer {
-    display: none !important;
-  }
+    /* Hide the hidden programs section when printing */
+    .hidden-programs,
+    .drawer {
+        display: none !important;
+    }
 
-  /* Force page break before each weekday section */
-  tr:first-child,
-  tr:has(th:first-child:not(:empty)) {
-    break-before: page;
-  }
+    /* Force page break before each weekday section */
+    tr:first-child,
+    tr:has(th:first-child:not(:empty)) {
+        break-before: page;
+    }
 
-  /* Remove pointer and color from toggle buttons when printing */
-  .toggle-btn {
-    cursor: default;
-    color: black;
-    text-decoration: none;
-  }
+    /* Remove pointer and color from toggle buttons when printing */
+    .toggle-btn {
+        cursor: default;
+        color: black;
+        text-decoration: none;
+    }
 }
