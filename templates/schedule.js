@@ -2,6 +2,15 @@
 window.toggleDrawer = toggleDrawer;
 window.toggleProgram = toggleProgram;
 
+function getCurrentTimeInfo() {
+    const timezone = document.querySelector('table').dataset.timezone || 'Europe/Helsinki';
+    const options = { timeZone: timezone };
+    const now = new Date();
+    const today = now.toLocaleString('sv', options).split(' ')[0];
+    const weekday = now.getDay() || 7;  // Convert Sunday from 0 to 7
+    return { timezone, options, now, today, weekday };
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     // Only run drawer-related code if elements exist
@@ -17,6 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update time highlight every minute
     setInterval(updateTimeHighlight, 60000);
+
+    // Scroll to current weekday if no anchor is present
+    if (!window.location.hash) {
+        const { weekday } = getCurrentTimeInfo();
+        const currentHeader = document.getElementById(`iso-weekday-${weekday}`);
+        if (currentHeader) {
+            currentHeader.scrollIntoView();
+            // Update URL with anchor
+            window.location.hash = `#iso-weekday-${weekday}`;
+        }
+    }
 });
 
 function toggleDrawer() {
@@ -71,13 +91,7 @@ export function updateTimeHighlight() {
     document.querySelectorAll('.current-time, .current-week').forEach(el => 
         el.classList.remove('current-time', 'current-week'));
     
-    // Get timezone from table or use default
-    const timezone = document.querySelector('table').dataset.timezone || 'Europe/Helsinki';
-    const options = { timeZone: timezone };
-
-    // Get current time in the target timezone 
-    const now = new Date();
-    const today = now.toLocaleString('sv', options).split(' ')[0];
+    const { options, now, today } = getCurrentTimeInfo();
     
     // Find today's column
     const todayColumn = document.querySelector(`th[data-date="${today}"]`);
@@ -100,8 +114,8 @@ export function updateTimeHighlight() {
         });
     }
 
-    // Get current weekday (1-7, Monday is 1, Sunday is 7)
-    const weekday = new Date(today).getDay() || 7;  // Convert Sunday from 0 to 7
+    // Get current weekday from getCurrentTimeInfo
+    const { weekday } = getCurrentTimeInfo();
     
     // Find the current or most recent program row
     const timeStr = now.toLocaleTimeString('sv', options);

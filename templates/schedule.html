@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     <script type="module" src="schedule.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="drawer" class="drawer">
@@ -19,7 +20,7 @@
     <table data-timezone="{{ tz_name|default('Europe/Helsinki') }}">
         {% for weekday, programs in by_weekday.items() if programs %}
             {# Header row with weekday and dates #}
-            <thead>
+            <thead id="iso-weekday-{{ weekday + 1 }}">
               <tr>
                 <th data-weekday="{{ weekday }}">{{ weekday_name(weekday) }}</th>
                 {% for date in week_dates[weekday] %}
