@@ -6,7 +6,7 @@
     "test": "jest",
     "lint:js": "eslint . --ext .js --fix",
     "format:js": "prettier --write '**/*.js'",
-    "lint:css": "stylelint '**/*.css' --fix",
+    "lint:css": "stylelint --fix '**/*.css'",
     "format:css": "prettier --write '**/*.css'"
   },
   "devDependencies": {
