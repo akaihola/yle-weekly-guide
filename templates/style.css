@@ -169,32 +169,34 @@ td.marked {
 }
 
 /* Current time and week highlighting */
+/* Time highlighting */
 tr.current-time {
   background-color: rgba(255, 243, 224, 0.3);  /* Light orange background */
 }
 
+/* Week highlighting */
 td.current-week {
   background-color: rgba(232, 245, 233, 0.3);  /* Light green background */
 }
 
-/* Base marked cell style */
+/* Marked program */
 td.marked {
   background-color: #f8f8f8;
   color: #2e7d32;
   font-weight: bold;
 }
 
-/* Marked cells in current time row */
+/* Marked program in current time row */
 tr.current-time td.marked {
   background-color: rgba(255, 243, 224, 0.8);  /* Stronger orange */
 }
 
-/* Marked cells in current week */
+/* Marked program in current week */
 td.current-week.marked {
   background-color: rgba(232, 245, 233, 0.8);  /* Stronger green */
 }
 
-/* Special highlight for current time + current week marked cell */
+/* Marked program at current time in current week */
 tr.current-time td.current-week.marked {
   background-color: #4caf50;  /* Prominent green */
   color: white;
