@@ -121,9 +121,9 @@ th:first-child {
   background-color: #f5f5f5;
 }
 
-/* Show "piilota" text on hover for table cells */
+/* Show hide/show text on hover for table cells */
 .program-cell:hover::after {
-  content: 'piilota';
+  content: attr(data-action);
   position: absolute;
   right: 8px;
   color: #666;
@@ -151,7 +151,7 @@ th:first-child {
 }
 
 #hidden-programs li:hover::after {
-  content: 'näytä';
+  content: attr(data-action);
   position: absolute;
   right: 8px;
   color: #666;

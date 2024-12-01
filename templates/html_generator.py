@@ -2,32 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import jinja2
-from babel.core import Locale
-from babel.dates import format_date
 from zoneinfo import ZoneInfo
-
-MAX_WEEKDAY = 6  # Sunday (0-based indexing)
-
-
-def weekday_name(day_num: int) -> str:
-    """Convert weekday number to name using system locale."""
-    import os
-
-    if not 0 <= day_num <= MAX_WEEKDAY:
-        msg = f"Invalid weekday number: {day_num}. Must be 0-{MAX_WEEKDAY}."
-        raise ValueError(msg)
-
-    lang = os.environ.get("LANG", "en_US.UTF-8").split(".")[0]
-    locale = Locale.parse(lang)  # Let UnknownLocaleError propagate
-
-    # Create a date for the given weekday (using 2024 which starts on Monday)
-    d = date(2024, 1, 1 + day_num)  # Jan 1, 2024 is Monday
-    # Format just the weekday name using explicit locale
-    return format_date(d, format="E", locale=locale).lower()  # E gives abbreviated name
 
 
 def generate_html_table(
@@ -78,10 +57,9 @@ def generate_html_table(
         loader=jinja2.FileSystemLoader(template_dir),
         autoescape=True,
     )
-    env.globals["weekday_name"] = weekday_name
 
     # Copy static files
-    for static_file in ["schedule.js", "style.css"]:
+    for static_file in ["schedule.js", "translations.js", "style.css"]:
         source = template_dir / static_file
         dest = Path(static_file)
         dest.write_text(source.read_text())

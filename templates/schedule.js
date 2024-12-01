@@ -1,3 +1,6 @@
+// Import translations
+import { getTranslation } from './translations.js';
+
 // Export functions needed for HTML onclick handlers
 window.toggleDrawer = toggleDrawer;
 window.toggleProgram = toggleProgram;
@@ -14,6 +17,12 @@ function getCurrentTimeInfo() {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Set initial action text for all program cells
+    document.querySelectorAll('.program-cell').forEach((cell) => {
+        const action = getTranslation('hide');
+        cell.setAttribute('data-action', action);
+    });
+
     // Only run drawer-related code if elements exist
     const drawer = document.getElementById('drawer');
     if (drawer) {
@@ -48,7 +57,8 @@ function toggleDrawer() {
 function updateHiddenCount() {
     const hiddenList = document.getElementById('hidden-programs');
     const count = hiddenList.children.length;
-    document.getElementById('hidden-count').textContent = count;
+    const text = `${count} ${getTranslation('programs-hidden')}`;
+    document.getElementById('hidden-count').textContent = text;
 }
 
 function saveHiddenPrograms() {
@@ -61,6 +71,14 @@ function saveHiddenPrograms() {
 }
 
 function toggleProgram(programName, save = true) {
+    // Update all program cells with correct action text
+    document
+        .querySelectorAll(`td[data-program='${programName}']`)
+        .forEach((cell) => {
+            const isHidden = !cell.closest('tr').classList.contains('hidden');
+            const action = getTranslation(isHidden ? 'hide' : 'show');
+            cell.setAttribute('data-action', action);
+        });
     const selector = `tr[data-program='${programName}']`;
     const rows = document.querySelectorAll(selector);
     const isHidden = !rows[0].classList.contains('hidden');
@@ -75,6 +93,8 @@ function toggleProgram(programName, save = true) {
             li.id = `hidden-${programName}`;
             li.className = 'toggle-btn';
             li.onclick = () => toggleProgram(programName);
+            const showAction = getTranslation('show');
+            li.setAttribute('data-action', showAction);
             li.innerHTML = `<span class="program-name">${programName}</span>`;
             hiddenList.appendChild(li);
         }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from unittest.mock import mock_open, patch
 
 from schedule_analyzer import (
@@ -23,8 +23,6 @@ WEEKDAYS_COUNT = 3
 WEEKLY_OCCURRENCES = 3
 FLEXIBLE_OCCURRENCES = 2
 
-if TYPE_CHECKING:
-    import pytest
 
 
 def create_mock_schedule(programs: list[tuple[str, datetime]]) -> dict:
@@ -236,55 +234,3 @@ def test_normalize_program_name_empty() -> None:
 def test_normalize_program_name_whitespace() -> None:
     """Test normalizing strings with extra whitespace."""
     assert normalize_program_name("  Yle Uutiset ja sää  ") == "Yle Uutiset"
-
-
-def test_weekday_names_finnish(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test weekday names in Finnish."""
-    from templates.html_generator import weekday_name
-
-    monkeypatch.setenv("LANG", "fi_FI.UTF-8")
-
-    expected = [
-        "ma",
-        "ti",
-        "ke",
-        "to",
-        "pe",
-        "la",
-        "su",
-    ]
-
-    for i, exp in enumerate(expected):
-        assert weekday_name(i).lower() == exp
-
-
-def test_weekday_names_english(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test weekday names in English."""
-    from templates.html_generator import weekday_name
-
-    monkeypatch.setenv("LANG", "en_US.UTF-8")
-
-    expected = [
-        "mon",
-        "tue",
-        "wed",
-        "thu",
-        "fri",
-        "sat",
-        "sun",
-    ]
-
-    for i, exp in enumerate(expected):
-        assert weekday_name(i).lower() == exp
-
-
-def test_weekday_names_swedish(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test weekday names in Swedish."""
-    from templates.html_generator import weekday_name
-
-    monkeypatch.setenv("LANG", "sv_SE.UTF-8")
-
-    expected = ["mån", "tis", "ons", "tors", "fre", "lör", "sön"]
-
-    for i, exp in enumerate(expected):
-        assert weekday_name(i).lower() == exp

@@ -4,13 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
+    <script type="module" src="translations.js"></script>
     <script type="module" src="schedule.js"></script>
+    <script type="module">
+        import { getTranslation } from './translations.js';
+        // Initialize translations after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Translate all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = getTranslation(el.dataset.i18n);
+            });
+    
+            // Translate all elements with data-i18n-title attribute
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                el.title = getTranslation(el.dataset.i18nTitle);
+            });
+        });
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="drawer" class="drawer">
         <div class="drawer-tab" onclick="toggleDrawer()">
-            <span id="hidden-count">0</span> programs hidden
+            <span id="hidden-count">0</span>
         </div>
         <div class="drawer-content">
             <ul id='hidden-programs'></ul>
@@ -22,7 +38,7 @@
             {# Header row with weekday and dates #}
             <thead id="iso-weekday-{{ weekday + 1 }}">
               <tr>
-                <th data-weekday="{{ weekday }}">{{ weekday_name(weekday) }}</th>
+                <th data-weekday="{{ weekday }}" data-i18n="weekday-{{ weekday + 1 }}"></th>
                 {% for date in week_dates[weekday] %}
                     <th data-date="{{ date.isoformat() if date else '' }}">{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
                 {% endfor %}
@@ -30,7 +46,7 @@
                 {% for _ in range(max_dates - (week_dates[weekday]|length)) %}
                     <th></th>
                 {% endfor %}
-                <th>Ohjelma</th>
+                <th data-i18n="program"></th>
               </tr>
             </thead>
 
@@ -50,7 +66,7 @@
                     {% for _ in range(max_dates - (week_dates[weekday]|length)) %}
                         <td></td>
                     {% endfor %}
-                    <td class="program-cell" onclick="toggleProgram('{{ name }}')">{{ name }}</td>
+                    <td class="program-cell toggle-btn" onclick="toggleProgram('{{ name }}')" data-i18n-title="toggle-program" data-program="{{ name }}" data-action="">{{ name }}</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -12,8 +12,6 @@ from pathlib import Path
 
 from ruamel.yaml import YAML
 
-from templates.html_generator import weekday_name
-
 logger = logging.getLogger(__name__)
 
 
@@ -203,7 +201,7 @@ def analyze_recurring_programs(
                     "Analyzing series '%s' on %s at %s "
                     "(range: %s-%s) with %d occurrences",
                     series,
-                    weekday_name(weekday),
+                    f"weekday {weekday}",
                     avg_time.strftime("%H:%M"),
                     earliest.strftime("%H:%M"),
                     latest.strftime("%H:%M"),
@@ -324,11 +322,10 @@ def main() -> None:
         else:
             by_weekday_time[weekday][time_str].append(series)
 
-    from templates.html_generator import weekday_name
 
     for weekday in range(7):
         if weekday in by_weekday_time:
-            logger.info("%s:", weekday_name(weekday))
+            logger.info("Weekday %d:", weekday)
             for time_str, series_list in sorted(by_weekday_time[weekday].items()):
                 logger.info("  %s: %s", time_str, " / ".join(sorted(series_list)))
 
