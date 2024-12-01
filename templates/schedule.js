@@ -1,4 +1,25 @@
-export function toggleDrawer() {
+// Export functions needed for HTML onclick handlers
+window.toggleDrawer = toggleDrawer;
+window.toggleProgram = toggleProgram;
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Only run drawer-related code if elements exist
+    const drawer = document.getElementById('drawer');
+    if (drawer) {
+        const hiddenPrograms = JSON.parse(localStorage.getItem('hiddenPrograms') || '[]');
+        hiddenPrograms.forEach(program => toggleProgram(program, false));
+        updateHiddenCount();
+    }
+    
+    // Initial time highlight
+    updateTimeHighlight();
+    
+    // Update time highlight every minute
+    setInterval(updateTimeHighlight, 60000);
+});
+
+function toggleDrawer() {
     const drawer = document.getElementById('drawer');
     drawer.classList.toggle('open');
 }
@@ -104,21 +125,3 @@ export function updateTimeHighlight() {
     }
 }
 
-// Initialize when page loads (only in browser)
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-    // Only run drawer-related code if elements exist
-    const drawer = document.getElementById('drawer');
-    if (drawer) {
-        const hiddenPrograms = JSON.parse(localStorage.getItem('hiddenPrograms') || '[]');
-        hiddenPrograms.forEach(program => toggleProgram(program, false));
-        updateHiddenCount();
-    }
-    
-    // Initial time highlight
-    updateTimeHighlight();
-    
-    // Update time highlight every minute
-    setInterval(updateTimeHighlight, 60000);
-    });
-}
