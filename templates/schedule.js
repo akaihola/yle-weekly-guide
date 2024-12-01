@@ -81,7 +81,13 @@ export function updateTimeHighlight() {
             if (timeCell && programCell?.classList.contains('marked')) {
                 const [hours, minutes] = timeCell.textContent.trim().split(':').map(Number);
                 const rowTime = hours * 60 + minutes;
-                if (rowTime <= currentTime) {
+                const nextRow = row.nextElementSibling;
+                const nextTime = nextRow ? 
+                    nextRow.querySelector('td:first-child')?.textContent.trim().split(':').map(Number) : 
+                    [24, 0];
+                const nextRowTime = nextTime[0] * 60 + nextTime[1];
+                
+                if (rowTime <= currentTime && currentTime < nextRowTime) {
                     lastMatchingRow = row;
                 }
             }
