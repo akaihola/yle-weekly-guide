@@ -19,37 +19,58 @@ The script requires a directory structure containing YAML schedule files organiz
 
 Run the script with::
 
-    python3 schedule_analyzer.py -d /path/to/schedule/directory
+    python3 schedule_analyzer.py -d /path/to/schedule/directory [--format {text|html}] [--debug]
 
 The script will:
 
-1. Look for schedule files from the current date backwards for at least 4 weeks
+1. Look for schedule files covering 5 weeks, prioritizing future weeks and backfilling with past weeks if needed
 2. Analyze each program's occurrence patterns
 3. Report programs that appear multiple times on the same weekday and time slot
-4. Use a 5-minute tolerance for matching time slots
+4. Use a 13-minute tolerance for matching time slots
+
+Output Formats
+-------------
+The script supports two output formats:
+
+Text Format
+~~~~~~~~~~
+Default text output shows programs by weekday and time::
+
+    Maanantai:
+      06:00: Aamun ohjelma
+      12:30: Päivän ohjelma (1.12., 8.12., 15.12.)
+
+HTML Format
+~~~~~~~~~~
+The ``--format html`` option generates an interactive web page that:
+
+- Shows a 5-week schedule grid
+- Highlights the current time and week
+- Allows hiding/showing programs
+- Marks program occurrences with checkmarks
+- Saves hidden program preferences locally
 
 Implementation Details
 --------------------
 The script:
 
-- Uses Python's built-in libraries plus PyYAML
+- Uses Python's built-in libraries plus ruamel.yaml and Babel
 - Processes YAML files containing program schedules
 - Tracks program occurrences by series name, weekday, and time
-- Groups recurring programs by channel
-- Formats output in Finnish with proper weekday names
+- Uses system locale for weekday names
 - Ignores single occurrences to focus on recurring patterns
 - Handles timezone information in timestamps
+- Generates responsive HTML with JavaScript interactivity
 
 Requirements
 -----------
 - Python 3.12 or newer
 - ruamel.yaml library
+- Babel library
+- Web browser (for HTML output)
 
 The YAML files should contain program schedules in the format::
 
-    metadata:
-      generated_at: '2024-11-28T20:32:31.889226+00:00'
-      ...
     data:
       <channel_name>:
         programmes:
@@ -57,16 +78,12 @@ The YAML files should contain program schedules in the format::
             start_time: '2024-11-28T06:30:50+02:00'
             end_time: '2024-11-28T06:50:00+02:00'
             series: <series_name>
-            ...
 
-Output Format
-------------
-The script outputs recurring programs in the format::
+Development
+----------
+The project includes:
 
-    Sarja: <series_name>
-    Kanava: <channel_name>
-      <weekday>:
-        HH:MM
-        ...
-
-Where weekdays are in Finnish and times are in 24-hour format.
+- Automated tests (run with ``./run_tests.sh``)
+- Code linting (run with ``./run_lint.sh``)
+- JavaScript tests using Jest
+- GitHub Actions CI/CD pipeline
