@@ -46,28 +46,40 @@ The ``--format html`` option generates an interactive web page that:
 
 - Shows a 5-week schedule grid
 - Highlights the current time and week
-- Allows hiding/showing programs
+- Allows hiding/showing programs via a drawer interface
 - Marks program occurrences with checkmarks
-- Saves hidden program preferences locally
+- Saves hidden program preferences in browser localStorage
+- Supports multiple languages (Finnish, Swedish, English)
+- Provides responsive layout with proper icon spacing
 
 Implementation Details
 --------------------
 The script:
 
-- Uses Python's built-in libraries plus ruamel.yaml and Babel
+- Uses Python's built-in libraries plus ruamel.yaml
 - Processes YAML files containing program schedules
 - Tracks program occurrences by series name, weekday, and time
-- Uses system locale for weekday names
+- Supports multiple languages (Finnish, Swedish, English)
 - Ignores single occurrences to focus on recurring patterns
 - Handles timezone information in timestamps
 - Generates responsive HTML with JavaScript interactivity
+- Provides drawer interface for managing hidden programs
+- Persists user preferences in browser localStorage
 
 Requirements
 -----------
 - Python 3.12 or newer
 - ruamel.yaml library
-- Babel library
+- Node.js and npm (for JavaScript development)
 - Web browser (for HTML output)
+
+Development Dependencies
+~~~~~~~~~~~~~~~~~~~~~
+- ESLint and Prettier for JavaScript linting/formatting
+- Stylelint (v15) with stylelint-config-prettier for CSS linting/formatting
+- Jest for JavaScript testing
+- pytest for Python testing
+- uv for Python package management
 
 The YAML files should contain program schedules in the format::
 
@@ -84,6 +96,13 @@ Development
 The project includes:
 
 - Automated tests (run with ``./run_tests.sh``)
-- Code linting (run with ``./run_lint.sh``)
+- Code linting and formatting (run with ``./run_lint.sh``)
+  - Ruff for Python
+  - ESLint and Prettier for JavaScript (with auto-fix)
+  - Stylelint for CSS (with auto-fix)
 - JavaScript tests using Jest
-- GitHub Actions CI/CD pipeline
+- Python tests using pytest
+- GitHub Actions CI/CD pipeline for:
+  - Running tests
+  - Linting code
+  - Building and deploying to GitHub Pages
