@@ -8,6 +8,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.6",
     "@babel/preset-env": "^7.23.6",
+    "@testing-library/jest-dom": "^6.6.3",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
@@ -17,12 +18,22 @@
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
-    "moduleFileExtensions": ["js", "json"],
-    "moduleDirectories": ["node_modules", "<rootDir>"],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "<rootDir>"
+    ],
     "moduleNameMapper": {
       "^../templates/(.*)$": "<rootDir>/templates/$1"
     },
-    "testMatch": ["**/tests/**/*.test.js"],
-    "setupFiles": ["<rootDir>/tests/jest.setup.js"]
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/jest.setup.js"
+    ]
   }
 }
