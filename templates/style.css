@@ -196,9 +196,25 @@ tr.current-time {
     background-color: rgba(255, 243, 224, 30%); /* Light orange background */
 }
 
+@media print {
+    tr.current-time {
+        display: none;
+    }
+}
+
 /* Week highlighting */
 td.current-week {
     background-color: rgba(232, 245, 233, 30%); /* Light green background */
+}
+
+@media print {
+    td.current-week:not(.marked) {
+        background-color: transparent !important;
+    }
+
+    td.current-week.marked {
+        background-color: #f8f8f8 !important;
+    }
 }
 
 /* Marked program */
