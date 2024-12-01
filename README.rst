@@ -8,6 +8,11 @@ This script analyzes TV/radio program schedules from YAML files to identify recu
 and their regular broadcast times. It helps identify which programs appear regularly on the
 same weekday and time slot, making it easier to track regular programming patterns.
 
+Development History
+-----------------
+This code was 99% created using `Aider <https://aider.chat>`_ with `Claude <https://claude.ai>`_ 3.5 Sonnet
+as the LLM backend.
+
 Usage
 -----
 The script requires a directory structure containing YAML schedule files organized as::
