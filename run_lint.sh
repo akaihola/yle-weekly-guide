@@ -3,6 +3,7 @@
 errors=0
 py_files=()
 yaml_files=()
+js_files=()
 
 # Filter for .py and .yml/.yaml files
 for file in "$@"; do
@@ -10,6 +11,8 @@ for file in "$@"; do
         py_files+=("$file")
     elif [[ $file == *.yml ]] || [[ $file == *.yaml ]]; then
         yaml_files+=("$file")
+    elif [[ $file == *.js ]]; then
+        js_files+=("$file")
     fi
 done
 
@@ -20,6 +23,11 @@ fi
 
 if [ ${#yaml_files[@]} -gt 0 ]; then
     uvx yamllint "${yaml_files[@]}" || errors=$?
+fi
+
+if [ ${#js_files[@]} -gt 0 ]; then
+    npm run lint:js -- "${js_files[@]}" || errors=$?
+    npm run format:js -- "${js_files[@]}" || errors=$?
 fi
 
 exit $errors

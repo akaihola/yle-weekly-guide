@@ -116,86 +116,86 @@ const TEST_HTML = `
 </table>`;
 
 describe('Schedule highlighting', () => {
-  beforeEach(() => {
-    document.body.innerHTML = TEST_HTML;
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-    document.body.innerHTML = '';
-  });
-
-  it('should highlight correct column and row at 23:00', () => {
-    // Arrange
-    const testDate = new Date('2024-11-30T23:00:00'); // Saturday
-    jest.setSystemTime(testDate);
-
-    // Act
-    updateTimeHighlight();
-
-    // Assert
-    const markedCells = document.querySelectorAll('.current-week');
-    expect(markedCells).toHaveLength(11);
-    markedCells.forEach(cell => {
-      expect(cell.cellIndex).toBe(1);  // Second column 30.11.-1.12.
+    beforeEach(() => {
+        document.body.innerHTML = TEST_HTML;
+        jest.useFakeTimers();
     });
 
-    const highlightedRows = document.querySelectorAll('tr.current-time');
-    expect(highlightedRows).toHaveLength(1);
-    const timeCell = highlightedRows[0].querySelector('td:first-child');
-    expect(timeCell.textContent).toBe('22:35');
-  });
-
-  it('should highlight previous program when no programs at current time', () => {
-    // Arrange
-    const testDate = new Date('2024-11-30T23:45:00');  // Saturday
-    jest.setSystemTime(testDate);
-
-    // Act
-    updateTimeHighlight();
-
-    // Assert
-    const highlightedRows = document.querySelectorAll('tr.current-time');
-    expect(highlightedRows).toHaveLength(1);
-    const timeCell = highlightedRows[0].querySelector('td:first-child');
-    expect(timeCell.textContent).toBe('22:35');
-  });
-
-  it('should not highlight any column when viewing on a week outside the range', () => {
-    // Arrange
-    const testDate = new Date('2024-11-24T22:20:00');  // Sunday
-    jest.setSystemTime(testDate);
-
-    // Act
-    updateTimeHighlight();
-
-    // Assert
-    const markedCells = document.querySelectorAll('.current-week');
-    expect(markedCells).toHaveLength(0);
-    
-    const highlightedRows = document.querySelectorAll('.current-time');
-    expect(highlightedRows).toHaveLength(0);
-  });
-
-  it('should highlight Sunday column and correct program row at 21:10', () => {
-    // Arrange
-    const testDate = new Date('2024-12-08T21:10:00');  // Sunday
-    jest.setSystemTime(testDate);
-
-    // Act
-    updateTimeHighlight();
-
-    // Assert
-    // Check that Sunday column is highlighted
-    const sundayCells = document.querySelectorAll('tbody td:nth-child(3)');
-    sundayCells.forEach(cell => {
-      expect(cell).toHaveClass('current-week');
+    afterEach(() => {
+        jest.useRealTimers();
+        document.body.innerHTML = '';
     });
 
-    const highlightedRows = document.querySelectorAll('tr.current-time');
-    expect(highlightedRows).toHaveLength(1);
-    const timeCell = highlightedRows[0].querySelector('td:first-child');
-    expect(timeCell.textContent).toBe('21:04');
-  });
+    it('should highlight correct column and row at 23:00', () => {
+        // Arrange
+        const testDate = new Date('2024-11-30T23:00:00'); // Saturday
+        jest.setSystemTime(testDate);
+
+        // Act
+        updateTimeHighlight();
+
+        // Assert
+        const markedCells = document.querySelectorAll('.current-week');
+        expect(markedCells).toHaveLength(11);
+        markedCells.forEach((cell) => {
+            expect(cell.cellIndex).toBe(1); // Second column 30.11.-1.12.
+        });
+
+        const highlightedRows = document.querySelectorAll('tr.current-time');
+        expect(highlightedRows).toHaveLength(1);
+        const timeCell = highlightedRows[0].querySelector('td:first-child');
+        expect(timeCell.textContent).toBe('22:35');
+    });
+
+    it('should highlight previous program when no programs at current time', () => {
+        // Arrange
+        const testDate = new Date('2024-11-30T23:45:00'); // Saturday
+        jest.setSystemTime(testDate);
+
+        // Act
+        updateTimeHighlight();
+
+        // Assert
+        const highlightedRows = document.querySelectorAll('tr.current-time');
+        expect(highlightedRows).toHaveLength(1);
+        const timeCell = highlightedRows[0].querySelector('td:first-child');
+        expect(timeCell.textContent).toBe('22:35');
+    });
+
+    it('should not highlight any column when viewing on a week outside the range', () => {
+        // Arrange
+        const testDate = new Date('2024-11-24T22:20:00'); // Sunday
+        jest.setSystemTime(testDate);
+
+        // Act
+        updateTimeHighlight();
+
+        // Assert
+        const markedCells = document.querySelectorAll('.current-week');
+        expect(markedCells).toHaveLength(0);
+
+        const highlightedRows = document.querySelectorAll('.current-time');
+        expect(highlightedRows).toHaveLength(0);
+    });
+
+    it('should highlight Sunday column and correct program row at 21:10', () => {
+        // Arrange
+        const testDate = new Date('2024-12-08T21:10:00'); // Sunday
+        jest.setSystemTime(testDate);
+
+        // Act
+        updateTimeHighlight();
+
+        // Assert
+        // Check that Sunday column is highlighted
+        const sundayCells = document.querySelectorAll('tbody td:nth-child(3)');
+        sundayCells.forEach((cell) => {
+            expect(cell).toHaveClass('current-week');
+        });
+
+        const highlightedRows = document.querySelectorAll('tr.current-time');
+        expect(highlightedRows).toHaveLength(1);
+        const timeCell = highlightedRows[0].querySelector('td:first-child');
+        expect(timeCell.textContent).toBe('21:04');
+    });
 });
