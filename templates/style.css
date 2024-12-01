@@ -169,26 +169,37 @@ td.marked {
 }
 
 /* Current time and week highlighting */
-.current-time {
-  background-color: rgba(255, 243, 224, 0.5);  /* Light orange background */
+tr.current-time {
+  background-color: rgba(255, 243, 224, 0.3);  /* Light orange background */
 }
 
-.current-week {
-  background-color: rgba(232, 245, 233, 0.5);  /* Light green background */
+td.current-week {
+  background-color: rgba(232, 245, 233, 0.3);  /* Light green background */
 }
 
-/* Combine highlights */
-.current-time.current-week {
-  background: linear-gradient(
-    rgba(255, 243, 224, 0.5),
-    rgba(232, 245, 233, 0.5)
-  );
-}
-
-/* Keep marked cells visible with highlights */
-.current-time td.marked,
-.current-week td.marked {
+/* Base marked cell style */
+td.marked {
   background-color: #f8f8f8;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* Marked cells in current time row */
+tr.current-time td.marked {
+  background-color: rgba(255, 243, 224, 0.8);  /* Stronger orange */
+}
+
+/* Marked cells in current week */
+td.current-week.marked {
+  background-color: rgba(232, 245, 233, 0.8);  /* Stronger green */
+}
+
+/* Special highlight for current time + current week marked cell */
+tr.current-time td.current-week.marked {
+  background-color: #4caf50;  /* Prominent green */
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
 
 @media print {

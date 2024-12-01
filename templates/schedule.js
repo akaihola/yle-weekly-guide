@@ -95,6 +95,7 @@ export function updateTimeHighlight() {
         document.querySelectorAll('tr').forEach(row => {
             const cell = row.children[columnIndex];
             if (cell?.tagName === 'TD') {
+                row.classList.add('current-week');
                 cell.classList.add('current-week');
             }
         });
