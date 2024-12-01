@@ -1,4 +1,4 @@
-function toggleDrawer() {
+export function toggleDrawer() {
     const drawer = document.getElementById('drawer');
     drawer.classList.toggle('open');
 }
@@ -45,7 +45,7 @@ function toggleProgram(programName, save = true) {
     }
 }
 
-function updateTimeHighlight() {
+export function updateTimeHighlight() {
     // Remove existing highlights
     document.querySelectorAll('.current-time, .current-week').forEach(el => 
         el.classList.remove('current-time', 'current-week'));
@@ -93,15 +93,21 @@ function updateTimeHighlight() {
     }
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const hiddenPrograms = JSON.parse(localStorage.getItem('hiddenPrograms') || '[]');
-    hiddenPrograms.forEach(program => toggleProgram(program, false));
-    updateHiddenCount();
+// Initialize when page loads (only in browser)
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+    // Only run drawer-related code if elements exist
+    const drawer = document.getElementById('drawer');
+    if (drawer) {
+        const hiddenPrograms = JSON.parse(localStorage.getItem('hiddenPrograms') || '[]');
+        hiddenPrograms.forEach(program => toggleProgram(program, false));
+        updateHiddenCount();
+    }
     
     // Initial time highlight
     updateTimeHighlight();
     
     // Update time highlight every minute
     setInterval(updateTimeHighlight, 60000);
-});
+    });
+}
