@@ -35,6 +35,9 @@ describe('Schedule highlighting', () => {
     // Assert
     const markedCells = document.querySelectorAll('.current-week');
     expect(markedCells).toHaveLength(4);
+    markedCells.forEach(cell => {
+      expect(cell.cellIndex).toBe(1);  // Second column (Monday)
+    });
 
     const rows = document.querySelectorAll('tr');
     expect(rows[2]).toHaveClass('current-time');  // 7:00 row
