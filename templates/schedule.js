@@ -165,13 +165,6 @@ export function updateTimeHighlight() {
                     .map(Number);
                 const rowTime = hours * 60 + minutes;
                 const nextRow = row.nextElementSibling;
-                const nextTime = nextRow
-                    ? nextRow
-                          .querySelector('td:first-child')
-                          ?.textContent.trim()
-                          .split(':')
-                          .map(Number)
-                    : [24, 0];
 
                 if (
                     rowTime <= currentTime &&
