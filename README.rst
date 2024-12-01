@@ -101,12 +101,15 @@ The project includes:
 
 - Automated tests (run with ``./run_tests.sh``)
 - Code linting and formatting (run with ``./run_lint.sh``)
+
   - Ruff for Python
   - ESLint and Prettier for JavaScript (with auto-fix)
   - Stylelint for CSS (with auto-fix)
+
 - JavaScript tests using Jest
 - Python tests using pytest
 - GitHub Actions CI/CD pipeline for:
+
   - Running tests
   - Linting code
   - Building and deploying to GitHub Pages
