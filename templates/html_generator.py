@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import jinja2
 from babel.core import Locale
 from babel.dates import format_date
+from zoneinfo import ZoneInfo
 
 MAX_WEEKDAY = 6  # Sunday (0-based indexing)
 
@@ -32,6 +33,8 @@ def weekday_name(day_num: int) -> str:
 def generate_html_table(
     by_weekday: dict[int, list[tuple[str, str, set[datetime.date]]]],
     files: list[Path],
+    *,
+    tz_name: str | None = None,
 ) -> str:
     """Generate HTML table for recurring programs using Jinja2 template."""
     # Get all unique dates from files
@@ -43,8 +46,11 @@ def generate_html_table(
         for f in files
     }
 
-    # Calculate the date range to show
-    today = datetime.now(timezone.utc).date()
+    # Set default timezone if none specified
+    tz_name = tz_name or "Europe/Helsinki"
+    # Calculate the date range to show using the specified timezone
+    tz = ZoneInfo(tz_name)
+    today = datetime.now(tz).date()
     current_monday = today - timedelta(days=today.weekday())
     last_data_monday = max(file_dates) - timedelta(days=max(file_dates).weekday())
 
@@ -85,4 +91,5 @@ def generate_html_table(
         by_weekday=by_weekday,
         week_dates=week_dates,
         max_dates=max_dates,
+        tz_name=tz_name,
     )

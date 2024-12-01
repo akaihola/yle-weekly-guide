@@ -16,7 +16,7 @@
         </div>
     </div>
     
-    <table>
+    <table data-timezone="{{ tz_name|default('Europe/Helsinki') }}">
         {% for weekday, programs in by_weekday.items() if programs %}
             {# Header row with weekday and dates #}
             <thead>

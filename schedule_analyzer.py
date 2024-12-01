@@ -294,6 +294,12 @@ def main() -> None:
         logger.warning("No schedule files found in the specified time window")
         return
 
+    # Get timezone from first file's metadata
+    tz_name = None
+    if files:
+        schedule = load_schedule(files[0])
+        tz_name = schedule.get("metadata", {}).get("timezone", "Europe/Helsinki")
+
     recurring = analyze_recurring_programs(files)
 
     if args.format == "html":
@@ -303,7 +309,7 @@ def main() -> None:
         for weekday, hour, minute, series, dates in recurring:
             time_str = format_time(hour, minute)
             by_weekday[weekday].append((time_str, series, dates))
-        html_output = generate_html_table(by_weekday, files)
+        html_output = generate_html_table(by_weekday, files, tz_name=tz_name)
         sys.stdout.write(html_output + "\n")
         return
 
