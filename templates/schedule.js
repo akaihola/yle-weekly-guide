@@ -150,7 +150,10 @@ export function updateTimeHighlight() {
                           .map(Number)
                     : [24, 0];
 
-                if (rowTime <= currentTime) {
+                if (
+                    rowTime <= currentTime &&
+                    !row.classList.contains('hidden')
+                ) {
                     lastMatchingRow = row;
                 }
             }
