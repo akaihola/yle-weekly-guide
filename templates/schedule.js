@@ -4,6 +4,26 @@ import { getTranslation } from './translations.js';
 // Export functions needed for HTML onclick handlers
 window.toggleDrawer = toggleDrawer;
 window.toggleProgram = toggleProgram;
+window.setLanguage = setLanguage;
+
+function setLanguage(lang) {
+    localStorage.setItem('preferredLanguage', lang);
+    // Retranslate all elements
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+        el.textContent = getTranslation(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        el.title = getTranslation(el.dataset.i18nTitle);
+    });
+    // Update program actions
+    document.querySelectorAll('.program-cell').forEach((cell) => {
+        const isHidden = cell.closest('tr').classList.contains('hidden');
+        const action = getTranslation(isHidden ? 'show' : 'hide');
+        cell.setAttribute('data-action', action);
+    });
+    // Update hidden count
+    updateHiddenCount();
+}
 
 function getCurrentTimeInfo() {
     const timezone =

@@ -26,9 +26,16 @@
 <body>
     <div id="drawer" class="drawer">
         <div class="drawer-tab" onclick="toggleDrawer()">
-            <span id="hidden-count">0</span>
+            <span class="drawer-arrow">▲</span>
+            <span id="hidden-count" class="hidden-count">0</span>
+            <span class="globe-icon">🌐</span>
         </div>
         <div class="drawer-content">
+            <div class="language-toggle">
+                <button onclick="setLanguage('fi')">suomi</button>
+                <button onclick="setLanguage('sv')">svenska</button>
+                <button onclick="setLanguage('en')">English</button>
+            </div>
             <ul id='hidden-programs'></ul>
         </div>
     </div>

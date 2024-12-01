@@ -44,7 +44,10 @@ export const translations = {
 };
 
 export function getTranslation(key) {
-    const userLang = navigator.language.split('-')[0];
-    const lang = ['fi', 'sv'].includes(userLang) ? userLang : 'en';
+    const preferredLang = localStorage.getItem('preferredLanguage');
+    const browserLang = navigator.language.split('-')[0];
+    const lang =
+        preferredLang ||
+        (['fi', 'sv'].includes(browserLang) ? browserLang : 'en');
     return translations[lang][key] || translations['en'][key];
 }

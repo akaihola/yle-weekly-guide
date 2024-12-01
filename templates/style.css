@@ -84,17 +84,31 @@ th:first-child {
   cursor: pointer;
   border-radius: 8px 8px 0 0;
   font-weight: bold;
-  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .drawer-tab:hover {
   background: #e5e5e5;
 }
 
-.drawer-tab::before {
-  content: '▲';
-  margin-right: 8px;
-  display: inline-block;
+.hidden-count {
+  text-align: center;
+  flex-grow: 1;
+  min-width: 120px;
+  padding: 0 30px;
+}
+
+.globe-icon {
+  position: absolute;
+  right: 20px;
+}
+
+.drawer-arrow {
+  position: absolute;
+  left: 20px;
   transition: transform 0.3s ease;
 }
 
@@ -106,6 +120,15 @@ th:first-child {
   padding: 10px;
   max-height: 300px;
   overflow-y: auto;
+}
+
+.language-toggle {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.language-toggle button {
+  margin-left: 8px;
 }
 
 .hidden {
