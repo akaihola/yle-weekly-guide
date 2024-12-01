@@ -45,9 +45,63 @@ function toggleProgram(programName, save = true) {
     }
 }
 
+function updateTimeHighlight() {
+    // Remove existing highlights
+    document.querySelectorAll('.current-time, .current-week').forEach(el => 
+        el.classList.remove('current-time', 'current-week'));
+    
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];  // YYYY-MM-DD format
+    
+    // Find today's column and its index
+    const todayColumn = document.querySelector(`th[data-date="${today}"]`);
+    const columnIndex = todayColumn 
+        ? Array.from(todayColumn.parentElement.children).indexOf(todayColumn)
+        : -1;
+
+    // Highlight today's column if found
+    if (columnIndex >= 0) {
+        document.querySelectorAll('tr').forEach(row => {
+            const cell = row.children[columnIndex];
+            if (cell?.tagName === 'TD') {
+                cell.classList.add('current-week');
+            }
+        });
+    }
+
+    // Find the current or most recent program row
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    let lastMatchingRow = null;
+
+    // Only process rows if we found today's column
+    if (todayColumn) {
+        document.querySelectorAll('tr').forEach(row => {
+            const timeCell = row.querySelector('td:first-child');
+            const programCell = row.children[columnIndex];
+            if (timeCell && programCell?.classList.contains('marked')) {
+                const [hours, minutes] = timeCell.textContent.trim().split(':').map(Number);
+                const rowTime = hours * 60 + minutes;
+                if (rowTime <= currentTime) {
+                    lastMatchingRow = row;
+                }
+            }
+        });
+
+        if (lastMatchingRow) {
+            lastMatchingRow.classList.add('current-time');
+        }
+    }
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     const hiddenPrograms = JSON.parse(localStorage.getItem('hiddenPrograms') || '[]');
     hiddenPrograms.forEach(program => toggleProgram(program, false));
     updateHiddenCount();
+    
+    // Initial time highlight
+    updateTimeHighlight();
+    
+    // Update time highlight every minute
+    setInterval(updateTimeHighlight, 60000);
 });

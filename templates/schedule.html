@@ -20,9 +20,9 @@
             {# Header row with weekday and dates #}
             <thead>
               <tr>
-                <th>{{ weekday_name(weekday) }}</th>
+                <th data-weekday="{{ weekday }}">{{ weekday_name(weekday) }}</th>
                 {% for date in week_dates[weekday] %}
-                    <th>{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
+                    <th data-date="{{ date.isoformat() if date else '' }}">{{ date.day ~ '.' ~ date.month ~ '.' if date else '' }}</th>
                 {% endfor %}
                 {# Add empty headers for remaining days if needed #}
                 {% for _ in range(max_dates - (week_dates[weekday]|length)) %}

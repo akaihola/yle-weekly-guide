@@ -168,6 +168,29 @@ td.marked {
   text-align: center;
 }
 
+/* Current time and week highlighting */
+.current-time {
+  background-color: rgba(255, 243, 224, 0.5);  /* Light orange background */
+}
+
+.current-week {
+  background-color: rgba(232, 245, 233, 0.5);  /* Light green background */
+}
+
+/* Combine highlights */
+.current-time.current-week {
+  background: linear-gradient(
+    rgba(255, 243, 224, 0.5),
+    rgba(232, 245, 233, 0.5)
+  );
+}
+
+/* Keep marked cells visible with highlights */
+.current-time td.marked,
+.current-week td.marked {
+  background-color: #f8f8f8;
+}
+
 @media print {
   /* Hide the hidden programs section when printing */
   .hidden-programs,
