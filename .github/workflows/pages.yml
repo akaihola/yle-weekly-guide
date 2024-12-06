@@ -53,7 +53,7 @@ jobs:
           python schedule_analyzer.py \
             -d yle-guide-scraper/yle/yle-radio-1 \
             -f html > _site/index.html
-          cp templates/schedule.js templates/style.css _site/
+          cp templates/*.{js,css} _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
