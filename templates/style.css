@@ -2,10 +2,37 @@
     font-size: 16px;
 }
 
-/* Adjust base font size for mobile */
-@media screen and (max-width: 768px) {
+/* Mobile and touch device styles */
+@media (hover: none), (max-width: 768px) {
     :root {
-        font-size: 15px;
+        font-size: 12px;
+    }
+    
+    html {
+        -webkit-text-size-adjust: none;
+        text-size-adjust: none;
+    }
+
+    /* Enable horizontal scrolling for table container */
+    body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100vw;
+    }
+    
+    /* Adjust cell padding for mobile */
+    th,
+    td {
+        padding: 3px 4px;
+        font-size: 12px;
+    }
+
+    /* Ensure program column doesn't grow too wide */
+    td:last-child {
+        max-width: 140px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 }
 
@@ -29,6 +56,13 @@ thead {
     top: 0;
     z-index: 1;
     background-color: #f1f1f1;
+}
+
+@media (hover: none), (max-width: 768px) {
+    .github-corner svg {
+        width: 40px !important;
+        height: 40px !important;
+    }
 }
 
 @media print {
