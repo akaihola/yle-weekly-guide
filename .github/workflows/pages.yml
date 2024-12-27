@@ -55,6 +55,9 @@ jobs:
             -f html > _site/index.html
           cp templates/*.{js,css} _site/
 
+      - name: Add CNAME file
+        run: echo "radio.kaihola.fi" > _site/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
