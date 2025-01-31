@@ -2,6 +2,12 @@
  Change log
 ============
 
+2025-01-31
+==========
+
+- Upgrade to the `upload-pages-artifact` version 3.
+
+
 2024-12-27
 ==========
 
