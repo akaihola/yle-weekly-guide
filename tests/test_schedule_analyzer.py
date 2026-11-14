@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from schedule_analyzer import (
     analyze_recurring_programs,
@@ -22,6 +27,51 @@ FLEXIBLE_SHOW_MINUTE = 5
 WEEKDAYS_COUNT = 3
 WEEKLY_OCCURRENCES = 3
 FLEXIBLE_OCCURRENCES = 2
+
+
+@pytest.mark.parametrize(
+    ("start_dates", "expected_returncode"),
+    [
+        ((), 1),
+        (("2024-01-01",), 1),
+        (("2024-01-01", "2024-01-01"), 1),
+        (("2024-01-01", "2024-01-08"), 0),
+    ],
+)
+def test_html_build_requires_recurring_programs(
+    tmp_path: Path,
+    start_dates: tuple[str, ...],
+    expected_returncode: int,
+) -> None:
+    """Reject missing or unusable schedules before publishing HTML."""
+    directory = tmp_path / "data"
+    directory.mkdir()
+    for week, start_date in enumerate(start_dates):
+        path = directory / "2024" / "01" / f"{1 + 7 * week:02d}.yaml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        schedule = create_mock_schedule(
+            [("Weekly Show", datetime.fromisoformat(f"{start_date}T12:00:00+02:00"))],
+        )
+        path.write_text(json.dumps(schedule))
+
+    script = Path(__file__).resolve().parents[1] / "schedule_analyzer.py"
+    result = subprocess.run(  # noqa: S603 -- fixed interpreter and local test script
+        [sys.executable, str(script), "-d", str(directory), "-f", "html"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == expected_returncode
+    if expected_returncode:
+        assert not result.stdout
+        message = (
+            "No recurring programs found" if start_dates else "No schedule files found"
+        )
+        assert message in result.stderr
+    else:
+        assert "data-program='Weekly Show'" in result.stdout
 
 
 

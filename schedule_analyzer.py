@@ -289,16 +289,23 @@ def main() -> None:
 
     files = find_schedule_files(args.directory)
     if not files:
-        logger.warning("No schedule files found in the specified time window")
-        return
+        logger.error("No schedule files found in %s", args.directory)
+        sys.exit(1)
 
     # Get timezone from first file's metadata
-    tz_name = None
-    if files:
-        schedule = load_schedule(files[0])
-        tz_name = schedule.get("metadata", {}).get("timezone", "Europe/Helsinki")
+    schedule = load_schedule(files[0])
+    tz_name = schedule.get("metadata", {}).get("timezone", "Europe/Helsinki")
 
     recurring = analyze_recurring_programs(files)
+    if not recurring:
+        logger.error("No recurring programs found in %d schedule files", len(files))
+        sys.exit(1)
+
+    logger.info(
+        "Found %d recurring programs in %d schedule files",
+        len(recurring),
+        len(files),
+    )
 
     if args.format == "html":
         from templates.html_generator import generate_html_table
